@@ -1,2 +1,2 @@
 # flonadb-driver
-An abstraction of a database proxy that allows client application to loosely connect to target databases using unique logical names 
+Host [issues](https://github.com/flonadb/flonadb-driver/issues) for to the [flonadb](http://flonadb.com) project

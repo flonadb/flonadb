@@ -1,2 +1,2 @@
-# flonadb-driver
-Host project for [issues](https://github.com/flonadb/flonadb-driver/issues) for the [flonadb](http://flonadb.com) project
+# Flonadb
+Host project for documentation, discussions and issues for the [flonadb](http://flonadb.com) project

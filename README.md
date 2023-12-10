@@ -13,18 +13,18 @@ This documentation is for the latest released version, for documentation for old
 ## Table Of Contents
 
 1. Getting Started
-   1. [Introduction](#introduction)
-   2. [Getting FlonaDB Driver](#getting-flonadb-driver)
-   3. [Quick Start](#quick-start)
+   - [Introduction](#introduction)
+   - [Getting FlonaDB Driver](#getting-flonadb-driver)
+   - [Quick Start](#quick-start)
 2. Database Implementations
-   1. [Proxy Database Overview](#proxy-database-overview)
-   2. [File Database](#file-database)
+   - [Proxy Database Overview](#proxy-database-overview)
+   - [File Database](#file-database)
 3. Configuration
-   1. [File Database Configuration](#file-database-configuration)
+   - [File Database Configuration](#file-database-configuration)
 4. API docs
-   1. [FlonaDataSource](#flonadatasource)
+   - [FlonaDataSource](#flonadatasource)
 5. License
-   1. [End-User License Agreement](#end-user-license-agreement)
+   - [End-User License Agreement](#end-user-license-agreement)
 
 ## Introduction
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using

@@ -44,6 +44,7 @@ There is a lot of possibilities that come to mind if you carefully think through
 of cool centralized features between your applications and the target databases.
 
 **Note:** Currently, only a JDBC driver is available for flonaDB.
+<small>[Back to top](#table-of-contents)</small>
 
 ## Getting FlonaDB Driver
 
@@ -60,6 +61,7 @@ Add the driver dependency below to your pom file.
     <version>1.0.0</version>
 </dependency>
 ```
+<small>[Back to top](#table-of-contents)</small>
 
 ## Quick Start
 ### Requirements

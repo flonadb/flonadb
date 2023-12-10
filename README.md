@@ -43,7 +43,7 @@ connect to them e.g. connection URL, username, password etc.
 There is a lot of possibilities that come to mind if you carefully think through all this, you can sandwich a plethora
 of cool centralized features between your applications and the target databases.
 
-Note: Currently, only a JDBC driver is available for flonaDB.
+**Note:** Currently, only a JDBC driver is available for flonaDB.
 
 ## Getting FlonaDB Driver
 
@@ -66,7 +66,7 @@ Add the driver dependency below to your pom file.
 - Flona driver requires Java 8 and the above.
 - FlonaDB driver jar
 - The drivers for the respective target databases.
-- 
+
 ### Proxy Database Configuration
 As of version 1.0.0, [File Database](#file-database) is the only proxy DB implementation therefore it is the one we are 
 going to use in all our examples.
@@ -74,7 +74,7 @@ going to use in all our examples.
 The location of the database config file can be specified via an environment variable or a JVM system property named 
 `FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the file-based database config file.
 
-### Proxy DB Config Example
+Proxy DB Config Example
 ``` properties
 databases=mysql-prod,postgresql-research
 

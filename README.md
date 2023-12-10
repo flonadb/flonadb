@@ -10,7 +10,7 @@ source code.
 This documentation is for the latest released version, for documentation for older versions please see below,
 - **1.0.0** - https://github.com/flonadb/flonadb/tree/1.0.0#readme
 
-### Table Of Contents
+## Table Of Contents
 
 1. Getting Started
    1. [Introduction](#introduction)
@@ -26,7 +26,7 @@ This documentation is for the latest released version, for documentation for old
 5. License
    1. [End-User License Agreement](#end-user-license-agreement)
 
-### Introduction
+## Introduction
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using
 unique logical names or keys. It differs from a traditional database because it can't be used alone without a
 traditional target database. In fact, you can have multiple applications connect to multiple databases using a single
@@ -45,13 +45,14 @@ of cool centralized features between your applications and the target databases.
 
 Note: Currently, only a JDBC driver is available for flonaDB.
 
-### Getting FlonaDB Driver
-#### Download
+## Getting FlonaDB Driver
+
+### Download
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.0.0&e=jar) the single jar file using the download button below and add it to your classpath.
 
 
-#### Maven
-Add the dependency below to your pom file for the driver.
+### Maven
+Add the driver dependency below to your pom file.
 ``` xml
 <dependency>
     <groupId>com.amiyul.flona</groupId>
@@ -60,19 +61,71 @@ Add the dependency below to your pom file for the driver.
 </dependency>
 ```
 
-### Quick Start
+## Quick Start
+### Requirements
+- Flona driver requires Java 8 and the above.
+- FlonaDB driver jar
+- The drivers for the respective target databases.
+- 
+### Proxy Database Configuration
+As of version 1.0.0, [File Database](#file-database) is the only proxy DB implementation therefore it is the one we are 
+going to use in all our examples.
+
+The location of the database config file can be specified via an environment variable or a JVM system property named 
+`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the file-based database config file.
+
+### Proxy DB Config Example
+``` properties
+databases=mysql-prod,postgresql-research
+
+mysql-prod.url=jdbc:mysql://localhost:3306/prod
+mysql-prod.properties.user=mysql-user
+mysql-prod.properties.password=mysql-pass
+
+postgresql-research.url=jdbc:postgresql://localhost:5432/research
+postgresql-research.properties.user=postgresql-user
+postgresql-research.properties.password=postgresql-pass
+```
+The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
+connection properties for each target database, the properties for each target database must be prefixed with database 
+name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
+[File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
+
+### Using Flona
+Checklist:
+
+Add the flona and target database drivers to your application's classpath.
+Configure the location of the file based database config file
+
+#### Using Flona Driver
+Driver Connection URL Example
+``` java
+Connection c = DriverManager.getConnection("jdbc:flona://mysql-prod");
+```
+The URL above is used to connect to a target database named `mysql-prod` defined in the proxy database config file we 
+created.
+
+#### Using Flona DataSource
+Flona driver also provides [FlonaDataSource](#flonadatasource) which is a JDBC `DataSource` implementation and below is an 
+example demonstrating how to use it.
+
+FlonaDataSource Example
+``` java
+FlonaDataSource ds = new FlonaDataSource();
+ds.setTargetDatabaseName("targetDbName");
+Connection c = ds.getConnection();
+```
+
+## Proxy Database Overview
 
 
-### Proxy Database Overview
+## File Database
 
 
-### File Database
+## File Database Configuration
 
 
-### File Database Configuration
+## FlonaDataSource
 
 
-### FlonaDataSource
-
-
-### End-User License Agreement
+## End-User License Agreement

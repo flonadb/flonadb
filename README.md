@@ -44,8 +44,8 @@ There is a lot of possibilities that come to mind if you carefully think through
 of cool centralized features between your applications and the target databases.
 
 **Note:** Currently, only a JDBC driver is available for flonaDB.
-<small>[Back to top](#table-of-contents)</small>
 
+<small>[Back to top](#table-of-contents)</small>
 ## Getting FlonaDB Driver
 
 ### Download
@@ -61,8 +61,8 @@ Add the driver dependency below to your pom file.
     <version>1.0.0</version>
 </dependency>
 ```
-<small>[Back to top](#table-of-contents)</small>
 
+<small>[Back to top](#table-of-contents)</small>
 ## Quick Start
 ### Requirements
 - Flona driver requires Java 8 and the above.
@@ -118,16 +118,21 @@ ds.setTargetDatabaseName("targetDbName");
 Connection c = ds.getConnection();
 ```
 
+<small>[Back to top](#table-of-contents)</small>
 ## Proxy Database Overview
 
 
+<small>[Back to top](#table-of-contents)</small>
 ## File Database
 
 
+<small>[Back to top](#table-of-contents)</small>
 ## File Database Configuration
 
 
+<small>[Back to top](#table-of-contents)</small>
 ## FlonaDataSource
 
 
+<small>[Back to top](#table-of-contents)</small>
 ## End-User License Agreement

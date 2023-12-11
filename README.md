@@ -181,6 +181,7 @@ public class FlonaDataSource implements DataSource
 ```public FlonaDataSource()```
 
 Default Constructor
+<hr>
 
 ```public FlonaDataSource(String targetDatabaseName)```
 
@@ -189,6 +190,7 @@ Convenience constructor that takes the name of the target database to connect to
 **Parameters:**
 
 `targetDatabaseName` - the name of the target database to connect to
+<hr>
 
 #### Methods
 > [!NOTE]

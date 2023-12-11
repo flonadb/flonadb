@@ -3,15 +3,20 @@ FlonaDB is an abstraction of a database proxy that allows client application to 
 using unique logical names.
 
 This repository is used to host documentation, [issues](https://github.com/flonadb/flonadb/issues) and 
-[discussions](https://github.com/flonadb/flonadb/discussions) for the [flonadb](http://flonadb.com) project and not the 
+[discussions](https://github.com/flonadb/flonadb/discussions) for the [flonadb](http://flonadb.org) project and not the 
 source code.
+
+## End-User License Agreement
+See [End-User License Agreement](#https://amiyul.com/flonadb-eula)
+
+## Copyright
+See [Copyright](#copyright)
 
 ## Documentation
 This documentation is for the latest released version, for documentation for older versions please see below,
 - **1.0.0** - https://github.com/flonadb/flonadb/tree/1.0.0#readme
 
 ## Table Of Contents
-
 1. Getting Started
     - [Introduction](#introduction)
     - [Getting FlonaDB Driver](#getting-flonadb-driver)
@@ -24,7 +29,7 @@ This documentation is for the latest released version, for documentation for old
 4. API docs
     - [FlonaDataSource](#flonadatasource)
 5. License
-    - [End-User License Agreement](#end-user-license-agreement)
+    - [End-User License Agreement](#https://amiyul.com/flonadb-eula)
 
 ## Introduction
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using
@@ -167,9 +172,36 @@ database name, implying the values for those properties only apply to a single t
 |`{TARGET_DB_NAME}`.properties.user|The user to use to connect to the database.|No||
 |`{TARGET_DB_NAME}`.properties.password|The user password to use to connect to the database.|No||
 
-
-
 ## FlonaDataSource
+### Class FlonaDataSource
+**Package:** com.amiyul.flona.driver
 
+public class FlonaDataSource implements DataSource
 
-## End-User License Agreement
+---
+#### Constructors
+```public FlonaDataSource()```
+
+Default Constructor
+
+```public FlonaDataSource(String targetDatabaseName)```
+
+Convenience constructor that takes the name of the target database to connect to.
+
+**Parameters:**
+
+`targetDatabaseName` - the name of the target database to connect to
+
+#### Methods
+> [!NOTE]
+> Inherited methods are excluded.
+
+**setTargetDatabaseName**
+
+```public void setTargetDatabaseName(String targetDatabaseName)```
+
+Sets the targetDatabaseName.
+
+**Parameters:**
+
+`targetDatabaseName` - the name of the target database to connect to

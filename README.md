@@ -173,13 +173,13 @@ database name, implying the values for those properties only apply to a single t
 
 ## API Docs
 ### FlonaDataSource
-#### Class FlonaDataSource
+### Class FlonaDataSource
 **Package:** com.amiyul.flona.driver
 
 public class FlonaDataSource implements DataSource
 
 ---
-#### Constructors
+### Constructors
 `public FlonaDataSource()`
 
 Default Constructor
@@ -194,7 +194,7 @@ Convenience constructor that takes the name of the target database to connect to
 `targetDatabaseName` - the name of the target database to connect to
 <hr>
 
-#### Methods
+### Methods
 > [!NOTE]
 > Inherited methods are excluded.
 

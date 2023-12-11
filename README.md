@@ -29,8 +29,6 @@ This documentation is for the latest released version, for documentation for old
 4. API docs
     - [FlonaDataSource](#flonadatasource)
 
-<h2 style="color: #a52a2a">Getting Started</h2>
-
 ## Introduction
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using
 unique logical names or keys. It differs from a traditional database because it can't be used alone without a
@@ -120,8 +118,6 @@ ds.setTargetDatabaseName("targetDbName");
 Connection c = ds.getConnection();
 ```
 
-<h2 style="color: #a52a2a">Database Implementations</h2>
-
 ## Proxy Database Overview
 FlonaDB database implementations are simple but powerful abstractions of a database proxy, depending on the 
 implementation, the proxy mechanism can be run 100% within the client application or partially while the other part 
@@ -163,8 +159,6 @@ connection properties for each target database, the properties for each target d
 name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
 [File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
 
-<h2 style="color: #a52a2a">Configuration</h2>
-
 ## File Database Configuration
 **Note:** `{TARGET_DB_NAME}` is a placeholder where it exists in a property name and must be replaced with the target 
 database name, implying the values for those properties only apply to a single target database.
@@ -175,8 +169,6 @@ database name, implying the values for those properties only apply to a single t
 |`{TARGET_DB_NAME}`.url|The URL of the database to which to connect.|Yes||
 |`{TARGET_DB_NAME}`.properties.user|The user to use to connect to the database.|No||
 |`{TARGET_DB_NAME}`.properties.password|The user password to use to connect to the database.|No||
-
-<h2 style="color: #a52a2a">API Docs</h2>
 
 ### FlonaDataSource
 #### Class FlonaDataSource

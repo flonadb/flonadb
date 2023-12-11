@@ -17,19 +17,20 @@ This documentation is for the latest released version, for documentation for old
 - **1.0.0** - https://github.com/flonadb/flonadb/tree/1.0.0#readme
 
 ## Table Of Contents
-1. Getting Started
-    - [Introduction](#introduction)
+1. Overview
+    - [What is FlonaDB?](#what-is-flonadb)
+2. Getting Started
     - [Getting FlonaDB Driver](#getting-flonadb-driver)
     - [Quick Start](#quick-start)
-2. Database Implementations
+3. Database Implementations
     - [Proxy Database Overview](#proxy-database-overview)
     - [File Database](#file-database)
-3. Configuration
+4. Configuration
     - [File Database Configuration](#file-database-configuration)
-4. API docs
+5. API docs
     - [FlonaDataSource](#flonadatasource)
 
-## Introduction
+## What is FlonaDB?
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using
 unique logical names or keys. It differs from a traditional database because it can't be used alone without a
 traditional target database. In fact, you can have multiple applications connect to multiple databases using a single

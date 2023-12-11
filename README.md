@@ -170,6 +170,7 @@ database name, implying the values for those properties only apply to a single t
 |`{TARGET_DB_NAME}`.properties.user|The user to use to connect to the database.|No||
 |`{TARGET_DB_NAME}`.properties.password|The user password to use to connect to the database.|No||
 
+## API Docs
 ### FlonaDataSource
 #### Class FlonaDataSource
 **Package:** com.amiyul.flona.driver
@@ -178,12 +179,12 @@ public class FlonaDataSource implements DataSource
 
 ---
 #### Constructors
-```public FlonaDataSource()```
+`public FlonaDataSource()`
 
 Default Constructor
 <hr>
 
-```public FlonaDataSource(String targetDatabaseName)```
+`public FlonaDataSource(String targetDatabaseName)`
 
 Convenience constructor that takes the name of the target database to connect to.
 
@@ -198,7 +199,7 @@ Convenience constructor that takes the name of the target database to connect to
 
 **setTargetDatabaseName**
 
-```public void setTargetDatabaseName(String targetDatabaseName)```
+`public void setTargetDatabaseName(String targetDatabaseName)`
 
 Sets the targetDatabaseName.
 

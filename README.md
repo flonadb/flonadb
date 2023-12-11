@@ -7,10 +7,10 @@ This repository is used to host documentation, [issues](https://github.com/flona
 source code.
 
 ## End-User License Agreement
-See [End-User License Agreement](#https://amiyul.com/flonadb-eula)
+See [End-User License Agreement](https://amiyul.com/flonadb-eula)
 
 ## Copyright
-See [Copyright](#copyright)
+See [Copyright](copyright.txt)
 
 ## Documentation
 This documentation is for the latest released version, for documentation for older versions please see below,

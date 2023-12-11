@@ -170,6 +170,7 @@ database name, implying the values for those properties only apply to a single t
 |`{TARGET_DB_NAME}`.properties.user|The user to use to connect to the database.|No||
 |`{TARGET_DB_NAME}`.properties.password|The user password to use to connect to the database.|No||
 
+
 ## API Docs
 ### FlonaDataSource
 #### Class FlonaDataSource

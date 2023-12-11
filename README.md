@@ -5,7 +5,7 @@ using unique logical names.
 ## Request A New Feature Or File A Bug
 Please see [here](https://github.com/flonadb/flonadb/issues)
 
-## Discussions
+## Discussions And Announcements
 Please see [here](https://github.com/flonadb/flonadb/discussions)
 
 ## End-User License Agreement

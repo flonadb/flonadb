@@ -100,12 +100,56 @@ Connection c = ds.getConnection();
 ```
 
 ## Proxy Database Overview
+FlonaDB database implementations are simple but powerful abstractions of a database proxy, depending on the 
+implementation, the proxy mechanism can be run 100% within the client application or partially while the other part 
+running a remote server. The proxy knows the locations and any other necessary information needed to connect to the 
+databases.
 
+You can use a single shared configuration file in order to manage the configurations in a single place. E.g. you could 
+store the file on a shared drive that is accessed by all applications using flonaDB, this approach would typically apply 
+to distributed systems with multiple nodes to centralize the management of the database credentials used by all the nodes.
+
+As of version 1.0.0, [File Database](#file-database) is the only available implementation, it is a local implementation 
+meaning both the driver and proxy DB are configured and run in the same JVM as the application, it implies you need to 
+add both the flona driver and any necessary target DB driver(s) to your application's the classpath, more 
+implementations will be added in future versions.
 
 ## File Database
+File Database
+A proxy database implementation that is configured in a file, it is 100% client side and runs inside the same JVM as the 
+client application.
 
+The location of the config file can be specified via an environment variable or a JVM system property named 
+`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the config file.
+
+File Database Config Example
+```
+databases=mysql-prod,postgresql-research
+
+mysql-prod.url=jdbc:mysql://localhost:3306/prod
+mysql-prod.properties.user=mysql-user
+mysql-prod.properties.password=mysql-pass
+
+postgresql-research.url=jdbc:postgresql://localhost:5432/research
+postgresql-research.properties.user=postgresql-user
+postgresql-research.properties.password=postgresql-pass
+```
+
+The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
+connection properties for each target database, the properties for each target database must be prefixed with database 
+name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
+[File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
 
 ## File Database Configuration
+**Note:** `{TARGET_DB_NAME}` is a placeholder where it exists in a property name and must be replaced with the target 
+database name, implying the values for those properties only apply to a single target database.
+
+|Name|Description|Required|Default Value|
+|---|---|---|---|
+|databases|A comma-separated list of the unique names of the target databases|Yes||
+|`{TARGET_DB_NAME}`.url|The URL of the database to which to connect.|Yes||
+|`{TARGET_DB_NAME}`.properties.user|The user to use to connect to the database.|No||
+|`{TARGET_DB_NAME}`.properties.password|The user password to use to connect to the database.|No||
 
 
 ## FlonaDataSource

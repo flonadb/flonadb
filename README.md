@@ -144,12 +144,13 @@ name that was defined in the value of the `databases` property as seen in the ex
 **Note:** `{TARGET_DB_NAME}` is a placeholder where it exists in a property name and must be replaced with the target 
 database name, implying the values for those properties only apply to a single target database.
 
-| Name                                   | Description                                                        | Required | Default Value |
-|----------------------------------------|--------------------------------------------------------------------|----------|---------------|
-| databases                              | A comma-separated list of the unique names of the target databases | Yes      ||
-| `{TARGET_DB_NAME}`.url                 | The URL of the database to which to connect.                       | Yes      ||
-| `{TARGET_DB_NAME}`.properties.user     | The user to use to connect to the database.                        | No       ||
-| `{TARGET_DB_NAME}`.properties.password | The user password to use to connect to the database.               | No       ||
+|Name|Description|Required|Default Value|
+|---|---|:---:|---|
+|databases|A comma-separated list of the unique names of the target databases|Yes||
+|`{TARGET_DB_NAME}`.url|The URL of the database to which to connect.|Yes||
+|`{TARGET_DB_NAME}`.properties.user|The user to use to connect to the database.|No||
+|`{TARGET_DB_NAME}`.properties.password|The user password to use to connect to the database.|No||
+
 
 
 ## FlonaDataSource

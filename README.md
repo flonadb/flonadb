@@ -13,8 +13,7 @@ See [End-User License Agreement](https://amiyul.com/flonadb-eula)
 See [Copyright](copyright.txt)
 
 ## Documentation
-This documentation is for the latest released version, for documentation for older versions please see below,
-- **1.0.0** - https://github.com/flonadb/flonadb/tree/1.0.0#readme
+This documentation is for the 1.0.0 version, for documentation for other versions please see [here](https://github.com/flonadb/flonadb#readme).
 
 ## Table Of Contents
 1. Overview

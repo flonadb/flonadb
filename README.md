@@ -29,12 +29,10 @@ of cool centralized features between your applications and the target databases.
 
 **Note:** Currently, only a JDBC driver is available for flonaDB.
 
-<small>[Back to top](#table-of-contents)</small>
 ## Getting FlonaDB Driver
 
 ### Download
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.0.0&e=jar) the single jar file using the download button below and add it to your classpath.
-
 
 ### Maven
 Add the driver dependency below to your pom file.
@@ -46,7 +44,6 @@ Add the driver dependency below to your pom file.
 </dependency>
 ```
 
-<small>[Back to top](#table-of-contents)</small>
 ## Quick Start
 ### Requirements
 - Flona driver requires Java 8 and the above.
@@ -102,21 +99,16 @@ ds.setTargetDatabaseName("targetDbName");
 Connection c = ds.getConnection();
 ```
 
-<small>[Back to top](#table-of-contents)</small>
 ## Proxy Database Overview
 
 
-<small>[Back to top](#table-of-contents)</small>
 ## File Database
 
 
-<small>[Back to top](#table-of-contents)</small>
 ## File Database Configuration
 
 
-<small>[Back to top](#table-of-contents)</small>
 ## FlonaDataSource
 
 
-<small>[Back to top](#table-of-contents)</small>
 ## End-User License Agreement

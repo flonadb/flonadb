@@ -2,19 +2,18 @@
 1. [Overview](#overview)
 2. [Features Overview](#features-overview)
 3. [Getting Started](#getting-started)
-    1. [Getting FlonaDB Driver](#)
+    1. [Getting FlonaDB Driver](#gez)
     2. [Quick Start](#)
 4. [Proxy DB Implementations](#proxy-db-implementations)
-    1. [Proxy Database Overview](#)
-    2. [Remote Database Proxy](#)
-    3. [File Database Proxy](#)
-5. [Features](#features)
-   1. [Data Masking](#)
-6. [Configuration](#configuration)
-    1. [Driver Configuration](#)
-    2. [File Database Configuration](#)
+    1. [Proxy Database Overview](#proxy-database-overview)
+    2. [File Database Proxy](#file-database-proxy)
+5. [Configuration](#configuration)
+    1. [Driver Configuration](#driver-configuration)
+    2. [File Database Configuration](#file-database-configuration)
+6. [Features](#features)
+    1. [Data Masking](#data-masking)
 7. [API Docs](#api-docs)
-    1. [FlonaDataSource](#)
+    1. [FlonaDataSource](#flonadatasource)
 8. [Technical Support](#technical-support)
 9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 10. [Discussions And Announcements](#discussions-and-announcements)
@@ -53,6 +52,7 @@ Note that all the features below are independent of the target database manageme
   credentials change, it can be very frustrating to wake up in the morning and a weekly batch processing job which runs 
   at night failed since the application could not connect to the database because the database admin performed a routine 
   update of the passwords during the day.
+- Hot reloading of database credentials and configuration properties.
 - An added layer of security, currently we support client id and secret key based authentication between the client and 
   proxy server, we intend to add a way to plugin custom authentication and authorization schemes, and to provide 
   features to fetch database user passwords from a secret key manager.
@@ -67,16 +67,117 @@ Note that all the features below are independent of the target database manageme
 We're constantly adding new important features to FlonaDB in newer versions.
 
 ## Getting Started
+### Getting FlonaDB Driver
+
+#### Download
+
+You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.1.0&e=jar) 
+the single jar file using the download button below and add it to your classpath.
+
+#### Maven
+
+Add the dependency below to your pom file for the driver.
+```xml
+<dependency>
+    <groupId>com.amiyul.flona</groupId>
+    <artifactId>flona-driver-final</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+
+### Quick Start
+#### Requirements 
+- Flona driver requires Java 17 and above.
+- FlonaDB driver jar
+- The drivers for the respective target databases.
+
+#### Driver Configuration (Optional)
+
+If no driver configuration file is provided, the driver will default to a file based proxy database. Otherwise, the path 
+to the driver config file can be specified via an environment variable or a JVM system property named 
+`FLONA_DRIVER_CFG_LOCATION`, below is an example of the contents of the driver config file.
+
+```properties
+config.hot.reload.enabled=true
+mask.columns=mysql-prod.person.ssn,mysql-prod.person.birthdate
+```
+
+As you can see from the example above, it is a standard Java properties file, `config.hot.reload.enabled` toggles hot 
+reloading of the configuration file, please refer to the [Driver Configuration](#driver-configuration) section for the 
+detailed list of supported properties.
+
+#### Proxy Database Configuration
+
+As of version 1.1.0, [File Database](#file-database-configuration) is the only proxy DB implementation therefore it is 
+the one we are going to use in all our examples.
+
+The path to the database config file can be specified via an environment variable or a JVM system property named 
+`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
+
+```properties
+databases=mysql-prod,postgresql-research
+
+mysql-prod.url=jdbc:mysql://localhost:3306/prod
+mysql-prod.properties.user=mysql-user
+mysql-prod.properties.password=mysql-pass
+
+postgresql-research.url=jdbc:postgresql://localhost:5432/research
+postgresql-research.properties.user=postgresql-user
+postgresql-research.properties.password=postgresql-pass
+```
+
+The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
+connection properties for each target database, the properties for each target database must be prefixed with database 
+name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
+[File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
+
+#### Using Flona
+
+Checklist:
+
+- Add the flona and target database drivers to your application's classpath.
+- Configure the location of the file based database config file
+
+Obtaining a Connection:
+
+```java
+Connection c = DriverManager.getConnection("jdbc:flona://mysql-prod"); 
+```
+
+The URL above is used to connect to a target database named `mysql-prod` defined in the proxy database config file we 
+created.
+
+Obtaining a Connection Using Flona DataSource:
+
+Flona driver also provides [FlonaDataSource](#flonadatasource) which is a JDBC `DataSource` implementation and below is 
+an example demonstrating how to use it.
+
+```java
+FlonaDataSource ds = new FlonaDataSource();
+ds.setTargetDatabaseName("mysql-prod");
+Connection c = ds.getConnection();
+
+```
 
 ## Proxy DB Implementations
 
-## Features
+### Proxy Database Overview
+
+### File Database Proxy
 
 ## Configuration
 
-## Proxy DB Implementations
+### Driver Configuration
+
+### File Database Configuration
+
+## Features
+
+### Data Masking
 
 ## API Docs
+
+### FlonaDataSource
 
 ## Technical Support
 For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 

@@ -16,9 +16,6 @@
 8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 9. [Discussions And Announcements](#discussions-and-announcements)
 10. [End-User License Agreement](#end-user-license-agreement)
-11. [Documentation For Older Versions](#)
-    1. [1.1.0](1-1-0/README.md)
-    2. [1.0.0](1-0-0/README.md)
 
 ## Overview
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using 
@@ -26,11 +23,10 @@ unique logical names or keys. It differs from a traditional database because it 
 traditional target database. In fact, you can have multiple applications connect to multiple databases using a single 
 centralized configuration and setup.
 
-It also differs from other database proxies because it comes in 2 flavors i.e. it can be deployed with a server side 
-application that acts as a reverse proxy and the client application communicates with the remote server over a network 
-with SSL. Alternatively, it can be used as a client side 'forward' proxy running inside the same JVM as the client 
-applications implying no extra application needs to be deployed. It provides features that are both developer and DevOps 
-focused.
+It also differs from other database proxies because currently it requires no extra server setup since the proxy
+mechanism is executed in the client application unless the proxy database implementation is orchestrated in such a way
+that it communicates with a remote server. This implies that depending on the proxy database implementation, FlonaDB can
+act as a forward or reverse proxy or both.
 
 The database proxy knows about the location of the target databases and any other necessary information needed to 
 connect to them e.g. connection URL, username, password etc. There is a lot of possibilities that come to mind if you 
@@ -53,17 +49,11 @@ Note that all the features below are independent of the target database manageme
   credentials change, it can be very frustrating to wake up in the morning and a weekly batch processing job which runs 
   at night failed since the application could not connect to the database because the database admin performed a routine 
   update of the passwords during the day.
-- Hot reloading of database credentials and configuration properties.
-- An added layer of security, currently we support client id and secret key based authentication between the client and 
-  proxy server, we intend to add a way to plugin custom authentication and authorization schemes, and to provide 
-  features to fetch database user passwords from a secret key manager.
 - Database system independence, it means in theory you can swap the target database system without changing client code 
   as long as the client application are written in such way that they are agnostic to the target database system behind. 
   And, you can plug in features that cut across all the database systems like collecting statistics, a custom security 
   model, connection timeouts, data masking etc.
-- Shared connection pooling between applications.
 - Data masking of configured column values both in the client application and the remote server.
-- Whitelisting of clients by IP address or subnet.
 
 We're constantly adding new important features to FlonaDB in newer versions.
 
@@ -72,7 +62,7 @@ We're constantly adding new important features to FlonaDB in newer versions.
 
 #### Download
 
-You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.2.0&e=jar) 
+You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.1.0&e=jar) 
 the single jar file using the download button below and add it to your classpath.
 
 #### Maven
@@ -82,7 +72,7 @@ Add the dependency below to your pom file for the driver.
 <dependency>
     <groupId>com.amiyul.flona</groupId>
     <artifactId>flona-driver-final</artifactId>
-    <version>1.2.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -312,7 +302,3 @@ Please see [here](https://github.com/flonadb/flonadb/discussions)
 
 ## End-User License Agreement
 See [End-User License Agreement](https://amiyul.com/flonadb-eula)
-
-## Documentation For Older Versions
-- [1.1.0](1-1-0/README.md)
-- [1.0.0](1-0-0/README.md)

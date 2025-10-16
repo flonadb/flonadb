@@ -264,11 +264,26 @@ names wrapped inside SQL functions, take an example of the query below to be run
   Masking won't work for the name column in the query above.
 - As noted above, it's evident that the masking feature is not really a security feature to be used by system admins to 
 mask values from developers, but rather a security feature intended for developers to mask values from users of the 
-system.
+user-facing application.
 
 
 ## Advanced Configuration
 ### Driver Configuration
+The path to the driver config file can be specified via an environment variable or a JVM system property named 
+`FLONA_DRIVER_CFG_LOCATION`.
+
+Note: Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must be 
+replaced with the full column name, implying the values for those properties only apply to a single column mask 
+definition. To understand what a full column name means, please refer to the [Data Masking](#data-masking) section.
+
+| Name | Description |  Required  |  Default Value  |
+|------|-------------|:----------:|:---------------:|
+|config.hot.reload.enabled      |When set to true, hot reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup.             |     No     |      false      |
+|mask.columns      |Specifies a comma-separated list of full column names in result sets whose values should be masked.             |            |       No        |
+|mask.FULL_COLUMN_NAME.mode      |Specifies the masking mode to apply to the column matching the full column name.             |     No     |                 |
+|mask.FULL_COLUMN_NAME.number      |Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.             |     No     |                 |
+|mask.FULL_COLUMN_NAME.regex      |Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.             |     No     |                 |
+|mask.FULL_COLUMN_NAME.indices      |Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.             |     No     |                 |
 
 ### File Database Configuration
 

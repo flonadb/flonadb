@@ -12,12 +12,10 @@
 6. [Advanced Configuration](#advanced-configuration)
     1. [Driver Configuration](#driver-configuration)
     2. [File Database Configuration](#file-database-configuration)
-7. [API Docs](#api-docs)
-    1. [Flona DataSource](#flona-datasource)
-8. [Technical Support](#technical-support)
-9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
-10. [Discussions And Announcements](#discussions-and-announcements)
-11. [End-User License Agreement](#end-user-license-agreement)
+7. [Technical Support](#technical-support)
+8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
+9. [Discussions And Announcements](#discussions-and-announcements)
+10. [End-User License Agreement](#end-user-license-agreement)
 
 ## Overview
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using 
@@ -148,8 +146,8 @@ created.
 
 Obtaining a connection using Flona data source:
 
-Flona driver also provides [FlonaDataSource](#flona-datasource) which is a JDBC `DataSource` implementation and below is 
-an example demonstrating how to use it to obtain a connection to a target database named `mysql-prod`.
+Flona driver also provides `com.amiyul.flona.driver FlonaDataSource` which is a JDBC `DataSource` implementation and 
+below is an example demonstrating how to use it to obtain a connection to a target database named `mysql-prod`.
 
 ```java
 FlonaDataSource ds = new FlonaDataSource();
@@ -298,9 +296,6 @@ database name, implying the values for those properties only apply to a single t
 |TARGET_DB_NAME.url|The URL of the database to which to connect.|Yes||
 |TARGET_DB_NAME.properties.user|The user to use to connect to the database.|No||
 |TARGET_DB_NAME.properties.password|The user password to use to connect to the database.|No||
-
-## API Docs
-### Flona DataSource
 
 ## Technical Support
 For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 

@@ -253,7 +253,7 @@ be masked to 01-***-1986 and a person SSN like 111-22-3333 will be masked to ***
 
 For full mask configuration details, please refer to the [Advanced Driver Configuration](#driver-configuration) section.
 
-*Note*
+**Note**
 
 - Masking is not applied to null values.
 - Masking does not work in some cases depending on how the developer writes the query, e.g. queries with masked column 
@@ -272,20 +272,32 @@ user-facing application.
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
 `FLONA_DRIVER_CFG_LOCATION`.
 
-Note: Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must be 
+**Note:** Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must be 
 replaced with the full column name, implying the values for those properties only apply to a single column mask 
 definition. To understand what a full column name means, please refer to the [Data Masking](#data-masking) section.
 
 | Name | Description |  Required  |  Default Value  |
 |------|-------------|:----------:|:---------------:|
-|config.hot.reload.enabled      |When set to true, hot reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup.             |     No     |      false      |
-|mask.columns      |Specifies a comma-separated list of full column names in result sets whose values should be masked.             |            |       No        |
-|mask.FULL_COLUMN_NAME.mode      |Specifies the masking mode to apply to the column matching the full column name.             |     No     |                 |
-|mask.FULL_COLUMN_NAME.number      |Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.             |     No     |                 |
-|mask.FULL_COLUMN_NAME.regex      |Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.             |     No     |                 |
-|mask.FULL_COLUMN_NAME.indices      |Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.             |     No     |                 |
+|config.hot.reload.enabled|When set to true, hot reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup.|No|false|
+|mask.columns|Specifies a comma-separated list of full column names in result sets whose values should be masked.|No||
+|mask.FULL_COLUMN_NAME.mode|Specifies the masking mode to apply to the column matching the full column name.|No||
+|mask.FULL_COLUMN_NAME.number|Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.|No||
+|mask.FULL_COLUMN_NAME.regex|Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.|No||
+|mask.FULL_COLUMN_NAME.indices|Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.|No||
 
 ### File Database Configuration
+The path to the database config file can be specified via an environment variable or a JVM system property named 
+`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
+
+**Note:** `TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target 
+database name, implying the values for those properties only apply to a single target database.
+
+|Name| Description                                                         | Required | Default Value |
+|-|---------------------------------------------------------------------|:--------:|:-------------:|
+|databases| A comma-separated list of the unique names of the target databases.|Yes||
+|TARGET_DB_NAME.url|The URL of the database to which to connect.|Yes||
+|TARGET_DB_NAME.properties.user|The user to use to connect to the database.|No||
+|TARGET_DB_NAME.properties.password|The user password to use to connect to the database.|No||
 
 ## API Docs
 ### Flona DataSource

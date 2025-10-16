@@ -1,4 +1,4 @@
-## Table Of Contents
+# Table Of Contents
 1. [Overview](#overview)
 2. [Features Overview](#features-overview)
 3. [Getting Started](#getting-started)
@@ -16,11 +16,11 @@
 8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 9. [Discussions And Announcements](#discussions-and-announcements)
 10. [End-User License Agreement](#end-user-license-agreement)
-11. [Documentation For Older Versions](#)
+11. [Documentation For Older Versions](#documentation-for-older-versions)
     1. [1.1.0](1-1-0/README.md)
     2. [1.0.0](1-0-0/README.md)
 
-## Overview
+# Overview
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using 
 unique logical names or keys. It differs from a traditional database because it can't be used alone without a 
 traditional target database. In fact, you can have multiple applications connect to multiple databases using a single 
@@ -45,7 +45,7 @@ We will be working on drivers for other languages in the future.
 
 **FlonaDB is available for use for free.**
 
-## Features Overview
+# Features Overview
 Note that all the features below are independent of the target database management system.
 - Client applications identify target databases using intuitive unique logical names instead of host name and port.
 - Centralized management of target database connection credentials like host name, port, username, password and other 
@@ -67,15 +67,15 @@ Note that all the features below are independent of the target database manageme
 
 We're constantly adding new important features to FlonaDB in newer versions.
 
-## Getting Started
-### Getting FlonaDB Driver
+# Getting Started
+## Getting FlonaDB Driver
 
-#### Download
+### Download
 
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.2.0&e=jar) 
 the single jar file using the download button below and add it to your classpath.
 
-#### Maven
+### Maven
 
 Add the dependency below to your pom file for the driver.
 ```xml
@@ -86,13 +86,13 @@ Add the dependency below to your pom file for the driver.
 </dependency>
 ```
 
-### Quick Start
-#### Requirements 
+## Quick Start
+### Requirements 
 - Flona driver requires Java 17 and above.
 - FlonaDB driver jar
 - The drivers for the respective target databases.
 
-#### Driver Configuration (Optional)
+### Driver Configuration (Optional)
 
 If no driver configuration file is provided, the driver will default to a file based proxy database. Otherwise, the path 
 to the driver config file can be specified via an environment variable or a JVM system property named 
@@ -107,7 +107,7 @@ As you can see from the example above, it is a standard Java properties file, `c
 reloading of the configuration file, please refer to the [Advanced Driver Configuration](#driver-configuration) section 
 for the detailed list of supported properties.
 
-#### Proxy Database Configuration
+### Proxy Database Configuration
 
 As of version 1.1.0, [File Database](#file-database-configuration) is the only proxy DB implementation therefore it is 
 the one we are going to use in all our examples.
@@ -132,13 +132,13 @@ connection properties for each target database, the properties for each target d
 name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
 [File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
 
-#### Connecting To The Database
+### Connecting To The Database
 Make sure you the done the following below,
 
 - Added to your application's classpath the Flona DB and the drivers for your target database system.
 - Configured the location of the [file based database](#file-database-configuration) config file
 
-Obtaining a connection:
+#### Obtaining a connection:
 
 ```java
 Connection c = DriverManager.getConnection("jdbc:flona://mysql-prod"); 
@@ -147,7 +147,7 @@ Connection c = DriverManager.getConnection("jdbc:flona://mysql-prod");
 The URL above is used to connect to a target database named `mysql-prod` defined in the proxy database config file we 
 created.
 
-Obtaining a connection using Flona data source:
+#### Obtaining a connection using Flona data source:
 
 Flona driver also provides `com.amiyul.flona.driver FlonaDataSource` which is a JDBC `DataSource` implementation and 
 below is an example demonstrating how to use it to obtain a connection to a target database named `mysql-prod`.
@@ -159,8 +159,8 @@ Connection c = ds.getConnection();
 
 ```
 
-## Proxy DB Implementations
-### Proxy Database Overview
+# Proxy DB Implementations
+## Proxy Database Overview
 FlonaDB database implementations are simple but powerful abstractions of a database proxy, depending on the
 implementation, the proxy mechanism can be run 100% within the client application or partially with the other component
 running on a remote server. The proxy knows the locations and any other necessary information needed to connect to the
@@ -176,7 +176,7 @@ meaning both the driver and proxy DB are configured and run in the same JVM as t
 add both the Flona driver and any necessary target DB driver(s) to your application's the classpath, more
 implementations will be added in future versions.
 
-### File Database Proxy
+## File Database Proxy
 A proxy database implementation that is configured in a file, it is 100% client side and runs inside the same JVM as the 
 client application.
 
@@ -200,8 +200,8 @@ connection properties for each target database, the properties for each target d
 name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
 [File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
 
-## Features
-### Data Masking
+# Features
+## Data Masking
 Different database systems provide functions that can be used in queries to mask values in a result set but these 
 functions are database specific and used in individual queries.
 
@@ -209,7 +209,7 @@ FlonaDB provides a database independent masking feature at the application level
 configure column whose values should be masked in result sets, the masking rules are applied to all applicable result 
 set values. Currently, the masking is only applicable to columns of data types that map to Java strings.
 
-#### String Mask Modes
+### String Mask Modes
 
 A mask mode specifies the masking behavior or rules applied to column values. If no mode is specified, by default a mask 
 of random length is generated, with the length being at least 2 unless the column length in the database is set to 1, 
@@ -222,7 +222,7 @@ also the generated mask won't exceed the database column length. Below are the s
 3. **Regex**: Masking is performed by applying a regex to the original value to mask specific characters.
 4. **Indices**: A list of indices is provided for the characters to mask.
 
-#### Mask Configuration
+### Mask Configuration
 Mask configurations are defined in the driver config file mentioned in the Quick Start section, below is a mask 
 configuration example.
 ```properties
@@ -268,8 +268,8 @@ mask values from developers, but rather a security feature intended for develope
 user-facing application.
 
 
-## Advanced Configuration
-### Driver Configuration
+# Advanced Configuration
+## Driver Configuration
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
 `FLONA_DRIVER_CFG_LOCATION`.
 
@@ -286,7 +286,7 @@ definition. To understand what a full column name means, please refer to the [Da
 |mask.FULL_COLUMN_NAME.regex|Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.|No||
 |mask.FULL_COLUMN_NAME.indices|Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.|No||
 
-### File Database Configuration
+## File Database Configuration
 The path to the database config file can be specified via an environment variable or a JVM system property named 
 `FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
 
@@ -300,19 +300,19 @@ database name, implying the values for those properties only apply to a single t
 |TARGET_DB_NAME.properties.user|The user to use to connect to the database.|No||
 |TARGET_DB_NAME.properties.password|The user password to use to connect to the database.|No||
 
-## Technical Support
+# Technical Support
 For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 
 page.
 
-## Request A New Feature Or File A Bug
+# Request A New Feature Or File A Bug
 Please see [here](https://github.com/flonadb/flonadb/issues)
 
-## Discussions And Announcements
+# Discussions And Announcements
 Please see [here](https://github.com/flonadb/flonadb/discussions)
 
-## End-User License Agreement
+# End-User License Agreement
 See [End-User License Agreement](https://amiyul.com/flonadb-eula)
 
-## Documentation For Older Versions
+# Documentation For Older Versions
 - [1.1.0](1-1-0/README.md)
 - [1.0.0](1-0-0/README.md)

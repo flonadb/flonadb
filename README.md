@@ -6,7 +6,8 @@
     2. [Quick Start](#)
 4. [Proxy DB Implementations](#proxy-db-implementations)
     1. [Proxy Database Overview](#)
-    2. [File Database](#)
+    2. [Remote Database Proxy](#)
+    3. [File Database Proxy](#)
 5. [Features](#features)
    1. [Data Masking](#)
 6. [Configuration](#configuration)
@@ -14,18 +15,56 @@
     2. [File Database Configuration](#)
 7. [API Docs](#api-docs)
     1. [FlonaDataSource](#)
-8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
-9. [Discussions And Announcements](#discussions-and-announcements)
-10. [End-User License Agreement](#end-user-license-agreement)
+8. [Technical Support](#technical-support)
+9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
+10. [Discussions And Announcements](#discussions-and-announcements)
+11. [End-User License Agreement](#end-user-license-agreement)
 
 ## Overview
-The documentation below for the latest release version, for older versions see below.
+FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using 
+unique logical names or keys. It differs from a traditional database because it can't be used alone without a 
+traditional target database. In fact, you can have multiple applications connect to multiple databases using a single 
+centralized configuration and setup.
+
+It also differs from other database proxies because it comes in 2 flavors i.e. it can be deployed with a server side 
+application that acts as a reverse proxy and the client application communicates with the remote server over a network 
+with SSL. Alternatively, it can be used as a client side 'forward' proxy running inside the same JVM as the client 
+applications implying no extra application needs to be deployed. It provides features that are both developer and DevOps 
+focused.
+
+The database proxy knows about the location of the target databases and any other necessary information needed to 
+connect to them e.g. connection URL, username, password etc. There is a lot of possibilities that come to mind if you 
+carefully think through all this, you can sandwich a plethora of cool centralized features that are agnostic to the 
+target database system between your applications and the target database systems like integrating a custom security 
+model result set caching, shared connection pooling, data masking, collecting statistics, connection management and 
+monitoring, query timing and logging etc.
+
+Note: Currently, only a JDBC driver is available for FlonaDB. It can be used by any application written with any of 
+languages in the Java family. Python users can also use it alongside [this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). 
+We will be working on drivers for other languages in the future.
+
+**FlonaDB is available for use for free.**
 
 ## Features Overview
+Note that all the features below are independent of the target database management system.
 - Client applications identify target databases using intuitive unique logical names instead of host name and port.
-- Centralized management of target database connection credentials like host name, port, username, password.
-- Connection pooling
-- Data masking of configured column values at the application level.
+- Centralized management of target database connection credentials like host name, port, username, password and other 
+  required information for multiple applications making it easier to update all applications at once when the connection 
+  credentials change, it can be very frustrating to wake up in the morning and a weekly batch processing job which runs 
+  at night failed since the application could not connect to the database because the database admin performed a routine 
+  update of the passwords during the day.
+- An added layer of security, currently we support client id and secret key based authentication between the client and 
+  proxy server, we intend to add a way to plugin custom authentication and authorization schemes, and to provide 
+  features to fetch database user passwords from a secret key manager.
+- Database system independence, it means in theory you can swap the target database system without changing client code 
+  as long as the client application are written in such way that they are agnostic to the target database system behind. 
+  And, you can plug in features that cut across all the database systems like collecting statistics, a custom security 
+  model, connection timeouts, data masking etc.
+- Shared connection pooling between applications.
+- Data masking of configured column values both in the client application and the remote server.
+- Whitelisting of clients by IP address or subnet.
+
+We're constantly adding new important features to FlonaDB in newer versions.
 
 ## Getting Started
 
@@ -38,6 +77,10 @@ The documentation below for the latest release version, for older versions see b
 ## Proxy DB Implementations
 
 ## API Docs
+
+## Technical Support
+For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 
+page.
 
 ## Request A New Feature Or File A Bug
 Please see [here](https://github.com/flonadb/flonadb/issues)

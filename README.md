@@ -103,9 +103,10 @@ against target databases via an internal [File Database Proxy](#file-database-pr
 Please use this [server example](examples/server) as a guide.
 #### Steps
 1. Create an installation directory for your server application.
-2. Copy the contents in [server example](examples/server) to your installation directory.
-3. [Download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-server&v=1.2.0&e=jar)
+2. [Download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-server&v=1.2.0&e=jar)
    the server jar file and copy it to the installation directory.
+3. Copy the contents of [server example](examples/server) to your installation directory and in the next steps we will 
+   go over the role of each file while explaining the contents.
 4. `db.properties` contains the information that tells the server how to connect to the actual target databases, we're 
    actually configuring the server to internally use one of its own features i.e. a [File Database Proxy](#file-database-proxy) 
    configuration, the file contains the properties below.
@@ -128,9 +129,10 @@ Please use this [server example](examples/server) as a guide.
     client-one.secret=secret-one
     client-one.databases=mysql-prod
     ```
-   We define a single client account, the client is assigned client id **client-one**, a secret **secret-one** and 
-   granted access to a single target databases logically identified as **mysql-prod**. The client will use the client 
-   id and secret to authenticate with the server as we will see later. Please refer to
+   We define a single client account, the client is assigned client id `client-one`, a secret `secret-one` and 
+   granted access to a single target database logically identified as `mysql-prod`. In later steps, we will see how the 
+   server is configured to locate this file. In the [client setup](#client-setup), we will also see how the clients are 
+   configured to use the client id and secret to authenticate with the server. Please refer to 
    [Managing Client Accounts](#managing-client-accounts) for more details.
 6. `application.properties` is a standard Spring Boot [application properties](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties),
    the file contains the properties below.
@@ -139,10 +141,12 @@ Please use this [server example](examples/server) as a guide.
    ```
    We add a single property named `proxy.security.clients.file.path` with its value set to the path to the clients 
    file we looked at in **Step 5**. Feel free to add other applicable Spring Boot properties.  
-7. There is a `drivers` directory in the server example, any required JDBC drivers for the target database systems 
-   should be added to this directory, you can change it to a different directory as we will see in the next step. 
-8. `flona.sh` is the executable shell script that you should run to start the server,  below,
+7. Create a new directory named `drivers` in the installation directory, any required JDBC drivers for the target 
+   database systems should be added to this directory, you can change it to a different directory as we will see in the 
+   next step. 
+8. `flona.sh` is the executable shell script that you should run to start the server, below are the contents.
     ```shell
+    # Add the JDBC drivers to this directory
     export LOADER_PATH=drivers
     export FLONA_FILE_DB_CFG_LOCATION=db.properties
     MAIN_CLASS=com.amiyul.flona.db.remote.server.ServerBootstrap
@@ -150,12 +154,13 @@ Please use this [server example](examples/server) as a guide.
     # You might have to change the server jar name below to match that of the downloaded file
     java -cp flona-server-1.2.0.jar -Dloader.main=$MAIN_CLASS $SPRING_LAUNCHER
     ```
-   This is just a way to run a Spring boot application, on the first line we tell Spring Boot where to load extra jars 
-   which in our case will be the JDBC drivers for the target database systems. Be sure to replace 
-   `flona-server-1.2.0.jar` with the actual name of the server jar file you downloaded in **Step 3**.
+   This is just a way to run a Spring boot application, we export an environment variable `LOADER_PATH` with a value of 
+   `drivers` which is the path to directory we saw earlier where to load extra jars which in our case will be the JDBC drivers for the 
+   target database systems. We also define another environment variable `FLONA_FILE_DB_CFG_LOCATION` with a value of 
+   `db.properties` which is the path to the `File Database Proxy` file we looked at in **Step 4**.
 
-   **Note** that we also export an environment variable with its value set to the location of the `File Database Proxy` 
-   we looked at in **Step 4**.
+   **Note** Remember to replace `flona-server-1.2.0.jar` with the actual name of the server jar file you downloaded in 
+   **Step 2**.
 9. Start the server application by navigating to the installation directory from the terminal and run the `flona.sh` 
    script we looked at in **Step 8**, you can stop the server by pressing Ctrl+C for the unix users.
 

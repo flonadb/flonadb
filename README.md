@@ -1,26 +1,27 @@
 # Table Of Contents
 1. [Overview](#overview)
-2. [Features Overview](#features-overview)
-3. [Getting Started](#getting-started)
+2. [Motivation](motivation/README.md)
+3. [Features Overview](#features-overview)
+4. [Getting Started](#getting-started)
    1. [Server Installation](#server-installation)
-      1. [Manual](#manual)
+      1. [Manual (With Example)](#manual)
       2. [With Docker (Coming Soon)](#with-docker)
    2. [Client Setup](#client-setup)
-4. [Proxy DB Implementations](#proxy-db-implementations)
+5. [Proxy DB Implementations](#proxy-db-implementations)
    1. [Proxy Database Overview](#proxy-database-overview)
    2. [Remote Proxy Database](#remote-proxy-database)
    3. [File Database Proxy](#file-database-proxy)
-5. [Features](#features)
+6. [Features](#features)
    1. [Data Masking](#data-masking)
-6. [Advanced Configuration](#advanced-configuration)
+7. [Advanced Configuration](#advanced-configuration)
    1. [Driver Configuration](#driver-configuration)
    2. [File Database Configuration](#file-database-configuration)
    3. [Client Configuration](#client-configuration)
-7. [Technical Support](#technical-support)
-8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
-9. [Discussions And Announcements](#discussions-and-announcements)
-10. [End-User License Agreement](#end-user-license-agreement)
-11. [Documentation For Older Versions](#documentation-for-older-versions)
+8. [Technical Support](#technical-support)
+9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
+10. [Discussions And Announcements](#discussions-and-announcements)
+11. [End-User License Agreement](#end-user-license-agreement)
+12. [Documentation For Older Versions](#documentation-for-older-versions)
     1. [1.1.0](1-1-0/README.md)
     2. [1.0.0](1-0-0/README.md)
 
@@ -76,11 +77,6 @@ Note that all the features below are independent of the target database manageme
 
 We're constantly adding new important features to FlonaDB in newer versions.
 
-With the rise of managed databases in cloud, containerization, these features and those to come, bring or will bring 
-even more value. We want to believe that in the near future cloud service providers will be charge clients even more 
-based of open connections and how much they are used over time therefore, features like a shared connection pool, result 
-set caching will help reduce these future costs.
-
 # Getting Started
 ## Server Installation
 Technically speaking, when FlonaDB is deployed to operate over a network, it acts a Type 3 (network) JDBC driver, with 
@@ -95,13 +91,14 @@ against target databases via an internal [File Database Proxy](#file-database-pr
 > It is strongly recommended that the communication between the client the server is done over a secured connection by 
 > enabling and setting up SSL on the server.
 
+### Requirements
+- Java 17
+- JDBC drivers for the target database systems.
+
 ### With Docker
 *Coming Soon....*
 
 ### Manual
-#### Requirements
-- Java 17
-- JDBC drivers for the target database systems.
 
 Please use this [server example](examples/server) as a guide.
 #### Steps

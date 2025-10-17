@@ -51,21 +51,20 @@ Note that all the features below are independent of the target database manageme
   credentials change, it can be very frustrating to wake up in the morning and a weekly batch processing job which runs 
   at night failed since the application could not connect to the database because the database admin performed a routine 
   update of the passwords during the day.
-- Database system independence, it means in theory you can swap the target database system without changing client code 
-  as long as the client application are written in such way that they are agnostic to the target database system behind. 
-  And, you can plug in features that cut across all the database systems like collecting statistics, a custom security 
-  model, connection timeouts, data masking etc.
+- Database system independence, it means in theory you can swap the target database system without changing client code
+  as long as the client applications are written in such a way that they are agnostic to the target database system
+  behind. And, you can plug in features that cut across all the database systems like collecting statistics, a custom
+  security model, connection timeouts, data masking etc.
 - Data masking of configured column values both in the client application and the remote server.
 
 We're constantly adding new important features to FlonaDB in newer versions.
 
 ## Getting Started
 ### Getting FlonaDB Driver
-
 #### Download
 
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.1.0&e=jar) 
-the single jar file using the download button below and add it to your classpath.
+the single jar file and add it to your classpath.
 
 #### Maven
 
@@ -118,14 +117,13 @@ postgresql-research.url=jdbc:postgresql://localhost:5432/research
 postgresql-research.properties.user=postgresql-user
 postgresql-research.properties.password=postgresql-pass
 ```
-
-The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
-connection properties for each target database, the properties for each target database must be prefixed with database 
-name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
-[File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
+The `databases` property takes a comma-separated list of the unique logical names of the target databases, then we 
+define connection properties for each target database, the properties for each target database must be prefixed with 
+database name that was defined in the value of the `databases` property as seen in the example above, please refer to 
+the [File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
 
 #### Connecting To The Database
-Make sure you the done the following below,
+Make sure you have done the following below,
 
 - Added to your application's classpath the Flona DB and the drivers for your target database system.
 - Configured the location of the [file based database](#file-database-configuration) config file

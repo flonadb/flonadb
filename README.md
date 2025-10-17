@@ -2,16 +2,19 @@
 1. [Overview](#overview)
 2. [Features Overview](#features-overview)
 3. [Getting Started](#getting-started)
-    1. [Getting FlonaDB Driver](#getting-flonadb-driver)
-    2. [Quick Start](#quick-start)
+   1. [Server Installation](#server-installation)
+      1. [Manual](#manual)
+      2. [With Docker (Coming Soon)](#with-docker)
+   2. [Client Setup](#client-setup)
 4. [Proxy DB Implementations](#proxy-db-implementations)
-    1. [Proxy Database Overview](#proxy-database-overview)
-    2. [File Database Proxy](#file-database-proxy)
+   1. [Proxy Database Overview](#proxy-database-overview)
+   2. [File Database Proxy](#file-database-proxy)
 5. [Features](#features)
-    1. [Data Masking](#data-masking)
+   1. [Data Masking](#data-masking)
 6. [Advanced Configuration](#advanced-configuration)
-    1. [Driver Configuration](#driver-configuration)
-    2. [File Database Configuration](#file-database-configuration)
+   1. [Driver Configuration](#driver-configuration)
+   2. [File Database Configuration](#file-database-configuration)
+   3. [Client Configuration](#client-configuration)
 7. [Technical Support](#technical-support)
 8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 9. [Discussions And Announcements](#discussions-and-announcements)
@@ -30,7 +33,12 @@ It also differs from other database proxies because it comes in 2 flavors i.e. i
 application that acts as a reverse proxy and the client application communicates with the remote server over a network 
 with SSL. Alternatively, it can be used as a client side 'forward' proxy running inside the same JVM as the client 
 applications implying no extra application needs to be deployed. It provides features that are both developer and DevOps 
-focused.
+focused. In forward proxy mode, currently only a File Database Proxy is available i.e. the database connection 
+information is managed and read fom a file, this file could be located on a shared volume if you wish. In future 
+versions we intend to add other implementations that are managed and read connection information from a database, 
+environment variables, secret key manager etc.
+
+FlonaDB effectively becomes a Type 3 JDBC driver when it is deployed in the client-server fashion. 
 
 The database proxy knows about the location of the target databases and any other necessary information needed to 
 connect to them e.g. connection URL, username, password etc. There is a lot of possibilities that come to mind if you 
@@ -58,9 +66,9 @@ Note that all the features below are independent of the target database manageme
   proxy server, we intend to add a way to plugin custom authentication and authorization schemes, and to provide 
   features to fetch database user passwords from a secret key manager.
 - Database system independence, it means in theory you can swap the target database system without changing client code 
-  as long as the client application are written in such way that they are agnostic to the target database system behind. 
-  And, you can plug in features that cut across all the database systems like collecting statistics, a custom security 
-  model, connection timeouts, data masking etc.
+  as long as the client applications are written in such a way that they are agnostic to the target database system 
+  behind. And, you can plug in features that cut across all the database systems like collecting statistics, a custom 
+  security model, connection timeouts, data masking etc.
 - Shared connection pooling between applications.
 - Data masking of configured column values both in the client application and the remote server.
 - Whitelisting of clients by IP address or subnet.
@@ -68,14 +76,93 @@ Note that all the features below are independent of the target database manageme
 We're constantly adding new important features to FlonaDB in newer versions.
 
 # Getting Started
-## Getting FlonaDB Driver
+## Server Installation
+Technically speaking, when FlonaDB is deployed to operate over a network, it acts a Type 3 (network) JDBC driver, with 
+the server application being the server component and the JDBC driver providing the client component. The server 
+application is a standard Spring Boot executable jar that processes database requests from the client driver and sends 
+back the responses.
 
-### Download
+It's worthy noting that the server internally uses FlonaDB again in a 'forward' proxy mode to process client requests 
+against target databases via an internal [File Database Proxy](#file-database-proxy) setup.
+
+> [!IMPORTANT]
+> It is strongly recommended that the communication between the client the server is done over secured connection by 
+> enabling and setting up SSL on the server.
+
+### With Docker
+*Coming Soon....*
+
+### Manual
+#### Requirements
+- Java 17
+- JDBC Drivers for the target database systems.
+
+#### Steps
+1. Create an installation directory for your server app.
+2. [Download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-server&v=1.2.0&e=jar)
+   the server jar file and copy it to the installation directory.
+3. Create a new file to hold the information that tells the server how to connect to the actual targets, in our example 
+   you can use a file named `flona_db.properties` and place it in the installation directory, please refer to 
+   [File Database Proxy](#file-database-proxy) for the contents of this file, we will need this file in later steps.
+4. Configure client accounts in a properties as shown below and store it in a location of your choice, in our example we 
+   will name it `flona-clients.properties` and store it in the installation directory.
+    ```properties
+    clients=client-1,client-2
+    
+    client-1.secret=secret-1
+    client-1.databases=mysql-prod,mysql-research
+    
+    client-2.secret=secret-2
+    client-2.databases=mysql-prod
+    ```
+    In the example above, we define 2 client accounts, the first client is assigned client id **client-1**, secret 
+    **secret-1** and granted access to 2 target databases logically identified as **mysql-prod**, **mysql-research**. 
+    The second client is assigned client id **client-2**, secret **secret-2** and granted access to a single target 
+    database logically identified as **mysql-prod**, these are the credentials they will use to authenticate with the 
+    server as we will see later.
+5. Create an `application.properties` file in the installation directory with the contents below,
+   ```properties
+   proxy.security.clients.file.path=flona-clients.properties
+   logging.config=logback.xml
+   ```
+   It is a standard Sprint Boot [application.properties](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties) 
+   file, we defined a property named `proxy.security.clients.file.path` with its value set to the path to the clients 
+   file we created in **Step 4**, we also include a Spring Boot's standard property named [logging.config](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#application-properties.core.logging.config) 
+   to tell it the path to the log configuration file we wish to use, you will need to create and add it. Feel free to 
+   add other applicable Spring Boot properties.  
+6. Create a new directory and add the required JDBC drivers for the target database systems, in our example we will 
+   create a directory inside the installation directory and name it `drivers`. 
+7. Create an executable shell script, we name it `flona.sh` and place it in the installation directory with the contents 
+   below,
+    ```shell
+    export LOADER_PATH=drivers
+    MAIN_CLASS=com.amiyul.flona.db.remote.server.ServerBootstrap
+    SPRING_LAUNCHER=org.springframework.boot.loader.PropertiesLauncher
+    export FLONA_FILE_DB_CFG_LOCATION=flona_db.properties
+    java -cp {FLONA_SERVER.jar} -Dloader.main=$MAIN_CLASS $SPRING_LAUNCHER
+    ```
+    Again, this is just a way to run a Spring boot application, on the first line we tell Spring Boot where to load 
+    extra jars which in our case will be the JDBC driver jars for the target database systems. Be sure to replace 
+   {FLONA_SERVER.jar} with the actual name of the server jar file you downloaded in **Step 2**.
+
+   **Note** that we also export an environment variable with its value set to the location of the File Database Proxy 
+   we created in **Step 3**.
+8. Start the server application by navigating to the installation directory from the terminal and run the script as 
+   shown below.
+```shell
+./flona.sh
+```
+Make sure no errors are reported when the application starts, from the example above, the logs in are written to a file 
+or console based on the log configuration file you defined in **Step 5**.
+
+## Client Setup
+### Getting FlonaDB Driver
+#### Download
 
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.2.0&e=jar) 
 the single jar file using the download button below and add it to your classpath.
 
-### Maven
+#### Maven
 
 Add the dependency below to your pom file for the driver.
 ```xml
@@ -86,7 +173,6 @@ Add the dependency below to your pom file for the driver.
 </dependency>
 ```
 
-## Quick Start
 ### Requirements 
 - Flona driver requires Java 17 and above.
 - FlonaDB driver jar
@@ -126,14 +212,13 @@ postgresql-research.url=jdbc:postgresql://localhost:5432/research
 postgresql-research.properties.user=postgresql-user
 postgresql-research.properties.password=postgresql-pass
 ```
-
-The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
-connection properties for each target database, the properties for each target database must be prefixed with database 
-name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
-[File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
+The `databases` property takes a comma-separated list of the unique logical names of the target databases, then we
+define connection properties for each target database, the properties for each target database must be prefixed with
+database name that was defined in the value of the `databases` property as seen in the example above, please refer to
+the [File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
 
 ### Connecting To The Database
-Make sure you the done the following below,
+Make sure you have done the following below,
 
 - Added to your application's classpath the Flona DB and the drivers for your target database system.
 - Configured the location of the [file based database](#file-database-configuration) config file
@@ -207,7 +292,7 @@ functions are database specific and used in individual queries.
 
 FlonaDB provides a database independent masking feature at the application level which allows developers to externally 
 configure column whose values should be masked in result sets, the masking rules are applied to all applicable result 
-set values. Currently, the masking is only applicable to columns of data types that map to Java strings.
+set values. Currently, the masking is only applicable to columns of data types that map to String class in Java.
 
 ### String Mask Modes
 
@@ -299,6 +384,8 @@ database name, implying the values for those properties only apply to a single t
 |TARGET_DB_NAME.url|The URL of the database to which to connect.|Yes||
 |TARGET_DB_NAME.properties.user|The user to use to connect to the database.|No||
 |TARGET_DB_NAME.properties.password|The user password to use to connect to the database.|No||
+
+## Client Configuration
 
 # Technical Support
 For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 

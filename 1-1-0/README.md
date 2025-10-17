@@ -81,7 +81,7 @@ Add the dependency below to your pom file for the driver.
 #### Requirements 
 - Flona driver requires Java 17 and above.
 - FlonaDB driver jar
-- The drivers for the respective target databases.
+- The JDBC drivers for the respective target database systems.
 
 #### Driver Configuration (Optional)
 

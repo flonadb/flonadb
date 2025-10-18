@@ -1,4 +1,6 @@
-# Table Of Contents
+<h1 style="color: maroon">Flona Documentation</h1>
+
+## Table Of Contents
 1. [Overview](#overview)
 2. [Motivation](motivation/README.md)
 3. [Features Overview](#features-overview)
@@ -15,8 +17,9 @@
    1. [Data Masking](#data-masking)
 7. [Advanced Configuration](#advanced-configuration)
    1. [Driver Configuration](#driver-configuration)
-   2. [File Database Configuration](#file-database-configuration)
-   3. [Client Configuration](#client-configuration)
+   2. [Remote Proxy Database Configuration](#remote-proxy-database-configuration)
+   3. [File Database Configuration](#file-database-configuration)
+   4. [Client Configuration](#client-configuration)
 8. [Technical Support](#technical-support)
 9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 10. [Discussions And Announcements](#discussions-and-announcements)
@@ -60,13 +63,12 @@ Note that all the features below are independent of the target database manageme
 - Client applications identify target databases using intuitive unique logical names instead of host name and port.
 - Centralized management of target database connection credentials like host name, port, username, password and other 
   required information for multiple applications making it easier to update all applications at once when the connection 
-  credentials change, it can be very frustrating to wake up in the morning and a weekly batch processing job which runs 
-  at night failed since the application could not connect to the database because the database admin performed a routine 
-  update of the passwords during the day.
+  credentials change. It also means you can rotate databases credentials in the proxy more frequently while you rarely 
+  rotate of those of the client applications which minimizes downtime.
 - Hot reloading of database credentials and configuration properties.
-- An added layer of security, currently we support client id and secret key based authentication between the client and 
-  proxy server, we intend to add a way to plugin custom authentication and authorization schemes, and to provide 
-  features to fetch database user passwords from a secret key manager.
+- An added layer of security, as of version 1.2.0, only client id and secret key based authentication is supported 
+between the client and proxy server, we intend to add a way to plug in custom authentication and authorization schemes 
+and to provide other features e.g. to retrieve client secrets and database user passwords from a secret key manager.
 - Database system independence, it means in theory you can swap the target database system without changing client code 
   as long as the client applications are written in such a way that they are agnostic to the target database system 
   behind. And, you can plug in features that cut across all the database systems like collecting statistics, a custom 
@@ -173,7 +175,7 @@ for how you can change the log configuration.
 #### Download
 
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.2.0&e=jar) 
-the single jar file using the download button below and add it to your classpath.
+the single jar file using the download button below and add it to your application's classpath.
 
 #### Maven
 
@@ -187,54 +189,51 @@ Add the dependency below to your pom file for the driver.
 ```
 
 ### Requirements 
-- Flona driver requires Java 17 and above.
-- FlonaDB driver jar
-- The JDBC drivers for the respective target database systems.
+- Java 17.
+- Flona JDBC driver
 
-### Driver Configuration (Optional)
+> [!NOTE]
+> No database JDBC drivers for the target database systems are required when using Flona in a reverse proxy mode i.e. 
+> with a [Remote Proxy Database](#remote-proxy-database).
 
-If no driver configuration file is provided, the driver will default to a file based proxy database. Otherwise, the path 
-to the driver config file can be specified via an environment variable or a JVM system property named 
+### Driver Configuration
+Create a new properties file with the contents below, in our example we will name it `flona-driver.properties`
 `FLONA_DRIVER_CFG_LOCATION`, below is an example of the contents of the driver config file.
-
 ```properties
-config.hot.reload.enabled=true
-mask.columns=mysql-prod.person.ssn,mysql-prod.person.birthdate
+# Specifies the name of the proxy database provider to use, possible values are file and remote, defaults to file.
+db.provider=remote
+
+# Specifies the host name of the server application.
+proxy.remote.server.host=localhost
+
+# Specifies the port of the server application, defaults to 8825. 
+#proxy.remote.server.port=
+
+# When set to true, it disables SSL otherwise it is enabled.
+proxy.remote.ssl.disabled=true
+
+# The client id of the client to use to authenticate with the server.
+proxy.remote.client.id=client-one
+
+# The secret of the client to use to authenticate with the server.
+proxy.remote.client.secret=secret-one
 ```
+From the example above, we have configured the client component of the Flona JDBC driver to connect to the server 
+application we installed earlier. Carefully read the inline comments above each property. Please refer to the 
+[Remote Proxy Database Configuration](#remote-proxy-database-configuration) section for the detailed list of supported 
+properties.
 
-As you can see from the example above, it is a standard Java properties file, `config.hot.reload.enabled` toggles hot 
-reloading of the configuration file, please refer to the [Advanced Driver Configuration](#driver-configuration) section 
-for the detailed list of supported properties.
+The path to the created driver configuration file above is passed to the client application via an environment 
+variable or a JVM system property named `FLONA_DRIVER_CFG_LOCATION`.
 
-### Proxy Database Configuration
-
-As of version 1.1.0, [File Database](#file-database-configuration) is the only proxy DB implementation therefore it is 
-the one we are going to use in all our examples.
-
-The path to the database config file can be specified via an environment variable or a JVM system property named 
-`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
-
-```properties
-databases=mysql-prod,postgresql-research
-
-mysql-prod.url=jdbc:mysql://localhost:3306/prod
-mysql-prod.properties.user=mysql-user
-mysql-prod.properties.password=mysql-pass
-
-postgresql-research.url=jdbc:postgresql://localhost:5432/research
-postgresql-research.properties.user=postgresql-user
-postgresql-research.properties.password=postgresql-pass
-```
-The `databases` property takes a comma-separated list of the unique logical names of the target databases, then we
-define connection properties for each target database, the properties for each target database must be prefixed with
-database name that was defined in the value of the `databases` property as seen in the example above, please refer to
-the [File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
+> [!INFO]
+> TODO You could possibly host the above configuration file on shared volume among nodes of a clustered application e.g. 
+> one deployed with Docker Swarm.
 
 ### Connecting To The Database
 Make sure you have done the following below,
-
-- Added to your application's classpath the Flona DB and the drivers for your target database system.
-- Configured the location of the [file based database](#file-database-configuration) config file
+- Added to your application's classpath the Flona DB.
+- Configured the location of the [Driver Configuration](#driver-configuration) file.
 
 #### Obtaining a connection:
 
@@ -310,7 +309,6 @@ configure column whose values should be masked in result sets, the masking rules
 set values. Currently, the masking is only applicable to columns of data types that map to String class in Java.
 
 ### String Mask Modes
-
 A mask mode specifies the masking behavior or rules applied to column values. If no mode is specified, by default a mask 
 of random length is generated, with the length being at least 2 unless the column length in the database is set to 1, 
 also the generated mask won't exceed the database column length. Below are the supported modes.
@@ -323,7 +321,7 @@ also the generated mask won't exceed the database column length. Below are the s
 4. **Indices**: A list of indices is provided for the characters to mask.
 
 ### Mask Configuration
-Mask configurations are defined in the driver config file mentioned in the Quick Start section, below is a mask 
+Mask configurations are defined in the [Advanced Driver Configuration](#driver-configuration), below is a mask 
 configuration example.
 ```properties
 mask.columns=prod.sales.location.name, sales.person.birthdate, marketing.person.ssn
@@ -355,7 +353,6 @@ be masked to 01-***-1986 and a person SSN like 111-22-3333 will be masked to ***
 For full mask configuration details, please refer to the [Advanced Driver Configuration](#driver-configuration) section.
 
 **Note**
-
 - Masking is not applied to null values.
 - Masking does not work in some cases depending on how the developer writes the query, e.g. queries with masked column 
 names wrapped inside SQL functions, take an example of the query below to be run against MySQL.
@@ -369,6 +366,23 @@ user-facing application.
 
 
 # Advanced Configuration
+## Remote Proxy Database Configuration
+TODO
+
+## File Database Configuration
+The path to the database config file can be specified via an environment variable or a JVM system property named
+`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
+
+**Note:** `TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target
+database name, implying the values for those properties only apply to a single target database.
+
+| Name | Description | Required | Default Value |
+|------|-------------|:--------:|:-------------:|
+|databases| A comma-separated list of the unique names of the target databases.|Yes||
+|TARGET_DB_NAME.url|The URL of the database to which to connect.|Yes||
+|TARGET_DB_NAME.properties.user|The user to use to connect to the database.|No||
+|TARGET_DB_NAME.properties.password|The user password to use to connect to the database.|No||
+
 ## Driver Configuration
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
 `FLONA_DRIVER_CFG_LOCATION`.
@@ -385,20 +399,6 @@ definition. To understand what a full column name means, please refer to the [Da
 |mask.FULL_COLUMN_NAME.number|Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.|No||
 |mask.FULL_COLUMN_NAME.regex|Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.|No||
 |mask.FULL_COLUMN_NAME.indices|Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.|No||
-
-## File Database Configuration
-The path to the database config file can be specified via an environment variable or a JVM system property named 
-`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
-
-**Note:** `TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target 
-database name, implying the values for those properties only apply to a single target database.
-
-| Name | Description | Required | Default Value |
-|------|-------------|:--------:|:-------------:|
-|databases| A comma-separated list of the unique names of the target databases.|Yes||
-|TARGET_DB_NAME.url|The URL of the database to which to connect.|Yes||
-|TARGET_DB_NAME.properties.user|The user to use to connect to the database.|No||
-|TARGET_DB_NAME.properties.password|The user password to use to connect to the database.|No||
 
 ## Client Configuration
 

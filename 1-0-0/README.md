@@ -60,7 +60,7 @@ We're constantly adding new important features to FlonaDB in newer versions.
 #### Download
 
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.0.0&e=jar) 
-the single jar file and add it to your classpath.
+the single jar file and add it to your application's classpath.
 
 #### Maven
 
@@ -74,9 +74,9 @@ Add the dependency below to your pom file for the driver.
 ```
 
 ### Quick Start
-#### Requirements 
-- Flona driver requires Java 8 and above.
-- FlonaDB driver jar
+#### Requirements
+- Java 8.
+- Flona JDBC driver
 - The JDBC drivers for the respective target database systems.
 
 #### Proxy Database Configuration
@@ -108,7 +108,7 @@ the [File Database Configuration](#file-database-configuration) section for the 
 Make sure you have done the following below,
 
 - Added to your application's classpath the Flona DB and the drivers for your target database system.
-- Configured the location of the [file based database](#file-database-configuration) config file
+- Configured the location of the [file based database](#file-database-configuration) config file.
 
 Obtaining a connection:
 
@@ -138,8 +138,8 @@ and any other necessary information needed to connect to the databases.
 
 You can use a single shared configuration file in order to manage the configurations in a single place. E.g. you could
 store the file on a shared drive that is accessed by all applications using Flona, this approach would typically apply
-to distributed systems with multiple nodes to centralize the management of the database credentials used by all the
-nodes.
+to distributed or clustered systems with multiple nodes to centralize the management of the database credentials
+used by all the nodes.
 
 As of version 1.1.0, [File Database Proxy](#file-database-proxy) is the only available implementation, it is a local implementation
 meaning both the driver and proxy DB are configured and run in the same JVM as the application, it implies you need to

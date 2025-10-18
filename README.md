@@ -9,16 +9,17 @@
       1. [Manual (With Example)](#manual)
       2. [With Docker (Coming Soon)](#with-docker)
    2. [Client Setup](#client-setup)
-5. [Proxy DB Implementations](#proxy-db-implementations)
+5. [Proxy Database Implementations](#proxy-database-implementations)
    1. [Proxy Database Overview](#proxy-database-overview)
    2. [Remote Proxy Database](#remote-proxy-database)
-   3. [File Database Proxy](#file-database-proxy)
+   3. [File Proxy Database](#file-proxy-database)
 6. [Features](#features)
-   1. [Data Masking](#data-masking)
+   1. [Runtime Configuration Reload](#runtime-configuration-reload)
+   2. [Data Masking](#data-masking)
 7. [Advanced Configuration](#advanced-configuration)
    1. [Driver Configuration](#driver-configuration)
    2. [Remote Proxy Database Configuration](#remote-proxy-database-configuration)
-   3. [File Database Configuration](#file-database-configuration)
+   3. [File Proxy Database Configuration](#file-proxy-database-configuration)
    4. [Client Configuration](#client-configuration)
 8. [Technical Support](#technical-support)
 9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
@@ -38,7 +39,7 @@ It also differs from other database proxies because it comes in 2 flavors i.e. i
 application that acts as a reverse proxy and the client application communicates with the remote server over a network 
 with SSL. Alternatively, it can be used as a client side 'forward' proxy running inside the same JVM as the client 
 applications implying no extra application needs to be deployed. It provides features that are both developer and DevOps 
-focused. In forward proxy mode, currently only a File Database Proxy is available i.e. the database connection 
+focused. In forward proxy mode, currently only a File Proxy Database is available i.e. the database connection 
 information is managed and read fom a file, this file could be located on a shared volume if you wish. In future 
 versions we intend to add other implementations that are managed and read connection information from a database, 
 environment variables, secret key manager etc.
@@ -87,7 +88,7 @@ application is a standard Spring Boot executable jar that processes database req
 back the responses.
 
 It's worthy noting that the server internally uses FlonaDB again in a 'forward' proxy mode to process client requests 
-against target databases via an internal [File Database Proxy](#file-database-proxy) setup.
+against target databases via an internal [File Proxy Database](#file-proxy-database) setup.
 
 > [!IMPORTANT]
 > It is strongly recommended that the communication between the client the server is done over a secured connection by 
@@ -110,8 +111,8 @@ Please use this [server example](examples/server) as a guide.
 3. Copy the contents of [server example](examples/server) to your installation directory and in the next steps we will 
    go over the role of each file while explaining the contents.
 4. `db.properties` contains the information that tells the server how to connect to the actual target databases, we're 
-   actually configuring the server to internally use one of its own features i.e. a [File Database Proxy](#file-database-proxy) 
-   configuration, the file contains the properties below.
+   actually configuring the server to internally use one of its own features i.e. a 
+   [File Proxy Database](#file-proxy-database), the example file contains the properties below.
     ```properties
     databases=mysql-prod
     
@@ -121,10 +122,13 @@ Please use this [server example](examples/server) as a guide.
     ```
    We define a target database with `mysql-prod` as its logical name, `mysql-prod.url` takes the value of connection 
    URL, `mysql-prod.properties.user` takes the user password and `mysql-prod.properties.password` takes the user 
-   password. You can define more properties to be passed to the driver. For more details, please refer to 
-   [File Database Proxy](#file-database-proxy).
+   password. You can define more properties to be passed to the driver. This is actually similar to how you define 
+   multiple data sources in a Spring Boot application, an application server like Jboss or a servlet container like 
+   Tomcat, but in all these cases the data source information is generally not dynamically reloadable at runtime but 
+   Flona supports this feature without requiring a client application or Flona server restart. For more details, please 
+   refer to [File Proxy Database](#file-proxy-database) documentation.
 5. `clients.properties` contains the client account information, including how they get authenticated and authorized, 
-   the file contains the properties below.
+   the example file contains the properties below.
     ```properties
     clients=client-one
     
@@ -134,10 +138,9 @@ Please use this [server example](examples/server) as a guide.
    We define a single client account, the client is assigned client id `client-one`, a secret `secret-one` and 
    granted access to a single target database logically identified as `mysql-prod`. In later steps, we will see how the 
    server is configured to locate this file. In the [client setup](#client-setup), we will also see how the clients are 
-   configured to use the client id and secret to authenticate with the server. Please refer to 
-   [Managing Client Accounts](#managing-client-accounts) for more details.
+   configured to use the client id and secret to authenticate with the server.
 6. `application.properties` is a standard Spring Boot [application properties](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties),
-   the file contains the properties below.
+   the example file contains the properties below.
    ```properties
    proxy.security.clients.file.path=clients.properties
    ```
@@ -157,9 +160,9 @@ Please use this [server example](examples/server) as a guide.
     java -cp flona-server-1.2.0.jar -Dloader.main=$MAIN_CLASS $SPRING_LAUNCHER
     ```
    This is just a way to run a Spring boot application, we export an environment variable `LOADER_PATH` with a value of 
-   `drivers` which is the path to directory we saw earlier where to load extra jars which in our case will be the JDBC drivers for the 
-   target database systems. We also define another environment variable `FLONA_FILE_DB_CFG_LOCATION` with a value of 
-   `db.properties` which is the path to the `File Database Proxy` file we looked at in **Step 4**.
+   `drivers` which is the path to directory we saw earlier where to load extra jars which in our case will be the JDBC 
+   drivers for the target database systems. We also define another environment variable `FLONA_FILE_DB_CFG_LOCATION` 
+   with a value of `db.properties` which is the path to the `File Proxy Database` file we looked at in **Step 4**.
 
    **Note** Remember to replace `flona-server-1.2.0.jar` with the actual name of the server jar file you downloaded in 
    **Step 2**.
@@ -179,28 +182,41 @@ the single jar file using the download button below and add it to your applicati
 
 #### Maven
 
-Add the dependency below to your pom file for the driver.
+Add the dependencies below to your pom file for the driver.
 ```xml
 <dependency>
     <groupId>com.amiyul.flona</groupId>
     <artifactId>flona-driver-final</artifactId>
     <version>1.2.0</version>
 </dependency>
+<dependency>
+    <groupId>com.amiyul.flona</groupId>
+    <artifactId>flona-driver-ext-final</artifactId>
+    <version>1.2.0</version>
+</dependency>
+<dependency>
+    <groupId>com.amiyul.flona</groupId>
+    <artifactId>flona-db-ext-final</artifactId>
+    <version>1.2.0</version>
+</dependency>
 ```
+
+TODO describe the 3 dependencies above.
 
 ### Requirements 
 - Java 17.
 - Flona JDBC driver
 
 > [!NOTE]
-> No database JDBC drivers for the target database systems are required when using Flona in a reverse proxy mode i.e. 
-> with a [Remote Proxy Database](#remote-proxy-database).
+> No JDBC drivers for the target database systems are required when using Flona in a reverse proxy mode i.e. with a 
+> [Remote Proxy Database](#remote-proxy-database).
 
-### Driver Configuration
+### Driver Setup
 Create a new properties file with the contents below, in our example we will name it `flona-driver.properties`
 `FLONA_DRIVER_CFG_LOCATION`, below is an example of the contents of the driver config file.
 ```properties
-# Specifies the name of the proxy database provider to use, possible values are file and remote, defaults to file.
+# Specifies the name of the proxy database provider to use, 
+# possible values are file and remote, defaults to file.
 db.provider=remote
 
 # Specifies the host name of the server application.
@@ -226,7 +242,7 @@ properties.
 The path to the created driver configuration file above is passed to the client application via an environment 
 variable or a JVM system property named `FLONA_DRIVER_CFG_LOCATION`.
 
-> [!INFO]
+> [!TIP]
 > TODO You could possibly host the above configuration file on shared volume among nodes of a clustered application e.g. 
 > one deployed with Docker Swarm.
 
@@ -256,32 +272,41 @@ Connection c = ds.getConnection();
 
 ```
 
-# Proxy DB Implementations
+# Proxy Database Implementations
 ## Proxy Database Overview
-FlonaDB database implementations are simple but powerful abstractions of a database proxy, depending on the
+Flona proxy database implementations are simple but powerful abstractions of a database proxy, depending on the
 implementation, the proxy mechanism can be run 100% within the client application or partially with the other component
 running on a remote server. The proxy knows the locations and any other necessary information needed to connect to the
-databases.
+databases. **Note** that no JDBC drivers need to be added to the classpath of the client application with this proxy.
 
-You can use a single shared configuration file in order to manage the configurations in a single place. E.g. you could
-store the file on a shared drive that is accessed by all applications using Flona, this approach would typically apply
-to distributed systems with multiple nodes to centralize the management of the database credentials used by all the
-nodes.
+You can choose to use a single shared configuration file in order to manage the configurations in a single place. E.g. 
+you could store the file on a shared drive that is accessed by all applications using Flona, this approach would 
+typically apply to distributed or clustered systems with multiple nodes to centralize the management of the database 
+credentials used by all the nodes.
 
-As of version 1.1.0, [File Database Proxy](#file-database-proxy) is the only available implementation, it is a local implementation
-meaning both the driver and proxy DB are configured and run in the same JVM as the application, it implies you need to
-add both the Flona driver and any necessary target DB driver(s) to your application's the classpath, more
-implementations will be added in future versions.
-
+As of version 1.2.0, there is only 2 proxy implementations i.e. [Remote Proxy Database](#remote-proxy-database) and 
+[File Proxy Database](#file-proxy-database), more implementations will be added in future versions.
 ## Remote Proxy Database
+This is a Type 3 JDBC driver implementation of proxy database, the driver comes in form of 2 components, a client JDBC 
+driver component which communicates with the server component over a network to process database calls made by the 
+client application. 
 
-## File Database Proxy
-A proxy database implementation that is configured in a file, it is 100% client side and runs inside the same JVM as the 
-client application.
+To use a remote proxy database, you need to do the following,
+- [Install the Flona server](#server-installation).
+- [Configure the client application](#client-setup) by setting the value of the `db.provider` property to 
+`remote` in the [Driver Configuration](#driver-configuration)
+
+## File Proxy Database
+This is a proxy database implementation that is configured using a file, it is 100% client side and runs inside the same 
+JVM as the client application, it requires adding the required JDBC drivers to the classpath of the client application.
 
 The location of the config file can be specified via an environment variable or a JVM system property named 
-`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the config file.
+`FLONA_FILE_DB_CFG_LOCATION`
 
+To use a remote proxy database, you need to do the following,
+- Create a database definition file that defines the target database logical names and any necessary information 
+required to connection each of them i.e. the connection URL, username and password. Below is an example of the contents 
+of a database definition file.
 ```properties
 databases=mysql-prod,postgresql-research
 
@@ -293,13 +318,22 @@ postgresql-research.url=jdbc:postgresql://localhost:5432/research
 postgresql-research.properties.user=postgresql-user
 postgresql-research.properties.password=postgresql-pass
 ```
-
 The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
 connection properties for each target database, the properties for each target database must be prefixed with database 
 name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
-[File Database Configuration](#file-database-configuration) section for the detailed list of supported properties.
+[File Proxy Database Configuration](#file-proxy-database-configuration) section for the detailed list of supported 
+properties.
+- [Configure the client application](#client-setup) by setting the value of the `db.provider` property to
+`file` in the [Driver Configuration](#driver-configuration). Alternatively, you can comment out this property since 
+`file` is the default value.
+- You also need to tell the Flona driver the location of database definition file, this is done by setting the path to 
+the file as the value of an environment variable or a JVM system property named `FLONA_FILE_DB_CFG_LOCATION`.
+
+> [!NOTE]
+> The File Proxy Database supports runtime reloading of its contents, see [File Proxy Database Configuration](#file-proxy-database-configuration) 
 
 # Features
+## Runtime Configuration Reload
 ## Data Masking
 Different database systems provide functions that can be used in queries to mask values in a result set but these 
 functions are database specific and used in individual queries.
@@ -369,7 +403,7 @@ user-facing application.
 ## Remote Proxy Database Configuration
 TODO
 
-## File Database Configuration
+## File Proxy Database Configuration
 The path to the database config file can be specified via an environment variable or a JVM system property named
 `FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
 
@@ -387,8 +421,8 @@ database name, implying the values for those properties only apply to a single t
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
 `FLONA_DRIVER_CFG_LOCATION`.
 
-**Note:** Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must be 
-replaced with the full column name, implying the values for those properties only apply to a single column mask 
+**Note:** Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must
+be replaced with the full column name, implying the values for those properties only apply to a single column mask 
 definition. To understand what a full column name means, please refer to the [Data Masking](#data-masking) section.
 
 | Name | Description |  Required  |  Default Value  |

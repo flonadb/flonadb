@@ -15,11 +15,11 @@
         <li>
             <b>Grant of License</b>
             <ul>
-                <li style="list-style: none">
+                <li>
                     <b>A) Scope of License.</b> Subject to the terms of this EULA, Licensor hereby grants to Licensee a
                     royalty-free, non-exclusive license to possess and to use a copy of the Software.
                 </li>
-                <li style="list-style: none">
+                <li>
                     <b>B) Installation and Use.</b> Licensee may install and use an unlimited number of copies of the
                     Software solely for Licensee's business and personal use.
                 </li>
@@ -28,12 +28,12 @@
         <li>
             <b>Description of Rights and Limitations</b>
             <ul>
-                <li style="list-style: none">
+                <li>
                     <b>A) Limitations.</b> Licensee and third parties may not reverse engineer, decompile, or disassemble
                     the Software, except and only to the extent that such activity is expressly permitted by applicable law
                     notwithstanding the limitation.
                 </li>
-                <li style="list-style: none">
+                <li>
                     <b>B) Separation of Components.</b> The Software is licensed as a single product. Its components may not
                     be separated for use on more than one computer.
                 </li>
@@ -56,11 +56,11 @@
         <li>
             <b>Duration.</b> This EULA is perpetual or until:
             <ul>
-                <li style="list-style: none">
+                <li>
                     A) Automatically terminated or suspended if Licensee fails to comply with any of the terms and
                     conditions set forth in this EULA; or
                 </li>
-                <li style="list-style: none">
+                <li>
                     B) Terminated or suspended by Licensor, with or without cause.
                 </li>
             </ul>

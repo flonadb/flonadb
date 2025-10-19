@@ -114,10 +114,16 @@ Please use this [server example](examples/server) as a guide.
    actually configuring the server to internally use one of its own features i.e. a 
    [File Proxy Database](#file-proxy-database), the example file contains the properties below.
     ```properties
+    # Logical name to identify the available database instances
     db.instances=mysql-prod
     
+    # Connection URL for the mysql-prod database instance
     mysql-prod.url=
+    
+    # Username to use to connection to the mysql-prod database instance
     mysql-prod.properties.user=
+    
+    # Password to use to connection to the mysql-prod database instance
     mysql-prod.properties.password=
     ```
    We define a database instance with `mysql-prod` as its logical name, `mysql-prod.url` takes the value of connection 
@@ -130,9 +136,15 @@ Please use this [server example](examples/server) as a guide.
 5. `clients.properties` contains the client account information, including how they get authenticated and authorized, 
    the example file contains the properties below.
     ```properties
+    # You can define more client ids, multiple client ids are separated by a comma
     clients=client-one
     
+    # Specifies the secret for client-one and the client will use the key-value pair below
+    # to authenticate with our server
     client-one.secret=secret-one
+   
+    # Grants client-one access to a database instance logically named mysql-prod, you can grant
+    # the client access to more instances, multiple instance names are separated by a comma
     client-one.db.instances=mysql-prod
     ```
    We define a single client account, the client is assigned id `client-one`, a secret `secret-one` and granted access 

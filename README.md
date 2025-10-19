@@ -30,7 +30,7 @@
     2. [1.0.0](1-0-0/README.md)
 
 # Overview
-FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target database 
+FlonaDB is a free abstraction of a database proxy that allows your application to loosely connect to target database 
 instances using unique logical names or keys. It differs from a traditional database because it can't be used alone 
 without a traditional target database instance. In fact, you can have multiple applications connect to multiple database 
 instances using a single centralized configuration and setup.
@@ -114,7 +114,7 @@ Please use this [server example](examples/server) as a guide.
    actually configuring the server to internally use one of its own features i.e. a 
    [File Proxy Database](#file-proxy-database), the example file contains the properties below.
     ```properties
-    databases=mysql-prod
+    db.instances=mysql-prod
     
     mysql-prod.url=
     mysql-prod.properties.user=
@@ -133,7 +133,7 @@ Please use this [server example](examples/server) as a guide.
     clients=client-one
     
     client-one.secret=secret-one
-    client-one.databases=mysql-prod
+    client-one.db.instances=mysql-prod
     ```
    We define a single client account, the client is assigned id `client-one`, a secret `secret-one` and granted access 
    to a single database instance logically identified as `mysql-prod`. In later steps, we will see how the server is 
@@ -263,7 +263,7 @@ Flona driver also provides `com.amiyul.flona.driver FlonaDataSource` which is a 
 below is an example demonstrating how to use it to obtain a connection to a database instance named `mysql-prod`.
 ```java
 FlonaDataSource ds = new FlonaDataSource();
-ds.setTargetDatabaseName("mysql-prod");
+ds.setDatabaseInstance("mysql-prod");
 Connection c = ds.getConnection();
 
 ```
@@ -305,7 +305,7 @@ To use a file proxy database, you need to do the following,
 information required to connection each of them i.e. the connection URL, username and password. Below is an example of 
 the contents of the instance definition file.
     ```properties
-    databases=mysql-prod,postgresql-research
+    db.instances=mysql-prod,postgresql-research
     
     mysql-prod.url=jdbc:mysql://localhost:3306/prod
     mysql-prod.properties.user=mysql-user
@@ -415,20 +415,21 @@ does not need to know the details of how to connect to the targets themselves. T
 connects to the server are directly defined in the [Driver Configuration](#driver-configuration) file, the table below 
 documents all the extra driver properties the remote proxy exposes.
 
-| Name | Description                                                                                                                                                                                                | Required | Default Value |
-|------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
-|proxy.remote.server.host| The Flona server host name                                                                                                                                                                                 |   Yes    |               |
-|proxy.remote.server.port| The Flona server port number                                                                                                                                                                               |    No    |     8825      |
-|proxy.remote.client.id| The client id to use for authentication                                                                                                                                                                    |   Yes    |               |
-|proxy.remote.client.secret| The client secret to use for authentication                                                                                                                                                                |    Yes    |               |
-|proxy.remote.network.keep.alive| Toggles the TCP keepalive feature for the connections between the client and the server, a value of true enables the feature otherwise it is disabled, defaults to false                                   |    No    |     false     |
-|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL           |    No    |     false     |
-|proxy.remote.ssl.truststore.file.path| The path to the certifcate trust store to use, **required** when SSL is enabled                                                                                                                            |    No    |               |
-|proxy.remote.ssl.truststore.password| The password for the certifcate trust store, **required** when SSL is enabled                                                                                                                                                                |    No    ||
-|proxy.remote.ssl.truststore.type| The type of the certifcate trust store                                                                                                                                                                     |    No    ||
-|proxy.remote.ssl.truststore.algorithm| The algorithm of the certificate trust manager factory                                                                                                                                                     |    No    |               |
-|proxy.remote.ssl.supported.versions| Comma-separated list of the supported SSL versions e.g. `TLSv1.2`,`TLSv1.3`. These must be among those supported by the server                                                                             |    No    |               |
-|proxy.remote.bounded.requests.no-op| Currently, the remote proxy database does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException` |No|false|
+| Name | Description                                                                                                                                                                                                                                          | Required | Default Value |
+|------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|proxy.remote.server.host| The Flona server host name                                                                                                                                                                                                                           |   Yes    |               |
+|proxy.remote.server.port| The Flona server port number                                                                                                                                                                                                                         |    No    |     8825      |
+|proxy.remote.client.id| The client id to use for authentication                                                                                                                                                                                                              |   Yes    |               |
+|proxy.remote.client.secret| The client secret to use for authentication                                                                                                                                                                                                          |   Yes    |               |
+|proxy.remote.network.keep.alive| Toggles the TCP keepalive feature for the connections between the client and the server, a value of true enables the feature otherwise it is disabled, defaults to false                                                                             |    No    |     false     |
+|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL                                                     |    No    |     false     |
+|proxy.remote.ssl.truststore.file.path| The path to the certifcate trust store to use, **required** when SSL is enabled                                                                                                                                                                      |    No    |               |
+|proxy.remote.ssl.truststore.password| The password for the certifcate trust store, **required** when SSL is enabled                                                                                                                                                                        |    No    |               |
+|proxy.remote.ssl.truststore.type| The type of the certifcate trust store                                                                                                                                                                                                               |    No    |               |
+|proxy.remote.ssl.truststore.algorithm| The algorithm of the certificate trust manager factory                                                                                                                                                                                               |    No    |               |
+|proxy.remote.ssl.supported.versions| Comma-separated list of the supported SSL versions e.g. `TLSv1.2`,`TLSv1.3`. These must be among those supported by the server                                                                                                                       |    No    |               |
+|lazy.connections.enabled| Turns on a feature where the proxy database delays obtaining a physical connection to the Flona server until the first call that requires a trip to the server is made, default to false                                                             |    No    |     false     |
+|proxy.remote.bounded.requests.no-op| Currently, the remote proxy database does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException` |    No    |     false     |
 
 ## File Proxy Database Configuration
 The [File Proxy Database](#file-proxy-database) reads the database instance definitions from a file, the path to this 

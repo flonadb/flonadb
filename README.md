@@ -10,17 +10,17 @@
       2. [With Docker (Coming Soon)](#with-docker)
    2. [Client Setup](#client-setup)
 5. [Proxy Database Implementations](#proxy-database-implementations)
-   1. [Proxy Database Overview](#proxy-database-overview)
-   2. [Remote Proxy Database](#remote-proxy-database)
-   3. [File Proxy Database](#file-proxy-database)
+   1. [Proxy Overview](#proxy-database-overview)
+   2. [Remote](#remote-proxy-database)
+   3. [File](#file-proxy-database)
 6. [Features](#features)
    1. [Runtime Configuration Reload](#runtime-configuration-reload)
    2. [Data Masking](#data-masking)
-7. [Advanced Configuration](#advanced-configuration)
-   1. [Driver Configuration](#driver-configuration)
-   2. [Remote Proxy Database Configuration](#remote-proxy-database-configuration)
-   3. [File Proxy Database Configuration](#file-proxy-database-configuration)
-   4. [Client Configuration](#client-configuration)
+7. [Configuration](#configuration)
+   1. [Server](#server-configuration)
+   2. [Remote Proxy Database](#remote-proxy-database-configuration)
+   3. [File Proxy Database](#file-proxy-database-configuration)
+   4. [Driver](#driver-configuration)
 8. [Technical Support](#technical-support)
 9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 10. [Discussions And Announcements](#discussions-and-announcements)
@@ -145,7 +145,8 @@ Please use this [server example](examples/server) as a guide.
    proxy.security.clients.file.path=clients.properties
    ```
    We add a single property named `proxy.security.clients.file.path` with its value set to the path to the clients 
-   file we looked at in **Step 5**. Feel free to add other applicable Spring Boot properties.  
+   file we looked at in **Step 5**. Please refer to [Server Configuration](#server-configuration) for more 
+   details, also feel free to add other applicable Spring Boot properties. 
 7. Create a new directory named `drivers` in the installation directory, any required JDBC drivers for the target 
    database systems should be added to this directory, you can change it to a different directory as we will see in the 
    next step. 
@@ -276,8 +277,8 @@ Connection c = ds.getConnection();
 ## Proxy Database Overview
 Flona proxy database implementations are simple but powerful abstractions of a database proxy, depending on the
 implementation, the proxy mechanism can be run 100% within the client application or partially with the other component
-running on a remote server. The proxy knows the locations and any other necessary information needed to connect to the
-databases. **Note** that no JDBC drivers need to be added to the classpath of the client application with this proxy.
+running on a remote server. The proxy knows about available target database the necessary information needed to connect 
+each of them.
 
 You can choose to use a single shared configuration file in order to manage the configurations in a single place. E.g. 
 you could store the file on a shared drive that is accessed by all applications using Flona, this approach would 
@@ -289,7 +290,11 @@ As of version 1.2.0, there is only 2 proxy implementations i.e. [Remote Proxy Da
 ## Remote Proxy Database
 This is a Type 3 JDBC driver implementation of proxy database, the driver comes in form of 2 components, a client JDBC 
 driver component which communicates with the server component over a network to process database calls made by the 
-client application. 
+client application. The actual database definitions are maintained on the Flona server and client only needs to know how 
+to connect to the server and passes to it the logical name of the target database it wants to connect to and use.
+
+**Note** No JDBC drivers have to be added to the classpath of the client application with this proxy, they are only 
+added to the server.
 
 To use a remote proxy database, you need to do the following,
 - [Install the Flona server](#server-installation).
@@ -297,32 +302,30 @@ To use a remote proxy database, you need to do the following,
 `remote` in the [Driver Configuration](#driver-configuration)
 
 ## File Proxy Database
-This is a proxy database implementation that is configured using a file, it is 100% client side and runs inside the same 
-JVM as the client application, it requires adding the required JDBC drivers to the classpath of the client application.
+This is a proxy database implementation that reads the database definitions from a file, it is 100% client side and runs 
+inside the same JVM as the client application, it requires adding the required JDBC drivers to the classpath of the 
+client application.
 
-The location of the config file can be specified via an environment variable or a JVM system property named 
-`FLONA_FILE_DB_CFG_LOCATION`
-
-To use a remote proxy database, you need to do the following,
+To use a file proxy database, you need to do the following,
 - Create a database definition file that defines the target database logical names and any necessary information 
 required to connection each of them i.e. the connection URL, username and password. Below is an example of the contents 
 of a database definition file.
-```properties
-databases=mysql-prod,postgresql-research
-
-mysql-prod.url=jdbc:mysql://localhost:3306/prod
-mysql-prod.properties.user=mysql-user
-mysql-prod.properties.password=mysql-pass
-
-postgresql-research.url=jdbc:postgresql://localhost:5432/research
-postgresql-research.properties.user=postgresql-user
-postgresql-research.properties.password=postgresql-pass
-```
-The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
-connection properties for each target database, the properties for each target database must be prefixed with database 
-name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
-[File Proxy Database Configuration](#file-proxy-database-configuration) section for the detailed list of supported 
-properties.
+    ```properties
+    databases=mysql-prod,postgresql-research
+    
+    mysql-prod.url=jdbc:mysql://localhost:3306/prod
+    mysql-prod.properties.user=mysql-user
+    mysql-prod.properties.password=mysql-pass
+    
+    postgresql-research.url=jdbc:postgresql://localhost:5432/research
+    postgresql-research.properties.user=postgresql-user
+    postgresql-research.properties.password=postgresql-pass
+    ```
+    The `databases` property takes a comma-separated list of the unique names of the target databases, then we define 
+    connection properties for each target database, the properties for each target database must be prefixed with database 
+    name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
+    [File Proxy Database Configuration](#file-proxy-database-configuration) section for the detailed list of supported 
+    properties.
 - [Configure the client application](#client-setup) by setting the value of the `db.provider` property to
 `file` in the [Driver Configuration](#driver-configuration). Alternatively, you can comment out this property since 
 `file` is the default value.
@@ -330,10 +333,12 @@ properties.
 the file as the value of an environment variable or a JVM system property named `FLONA_FILE_DB_CFG_LOCATION`.
 
 > [!NOTE]
-> The File Proxy Database supports runtime reloading of its contents, see [File Proxy Database Configuration](#file-proxy-database-configuration) 
+> The File Proxy Database supports runtime reloading of the database definition file, to enable this see 
+> [File Proxy Database Configuration](#file-proxy-database-configuration) 
 
 # Features
 ## Runtime Configuration Reload
+TODO Explain use cases of this
 ## Data Masking
 Different database systems provide functions that can be used in queries to mask values in a result set but these 
 functions are database specific and used in individual queries.
@@ -399,16 +404,36 @@ mask values from developers, but rather a security feature intended for develope
 user-facing application.
 
 
-# Advanced Configuration
+# Configuration
+## Server Configuration
 ## Remote Proxy Database Configuration
-TODO
+The [Remote Proxy Database](#remote-proxy-database) uses a client-server architecture, it means the client application 
+only needs to know how to connect to the Flona server and the logical names of the target databases to use, the client 
+does not need to know the details of how to connect to the targets themselves. The required details of how the client 
+connects to the server are directly defined in the [Driver Configuration](#driver-configuration) file, the table below 
+documents all the extra driver properties the remote proxy exposes.
+
+| Name | Description                                                                                                                                                                                                | Required | Default Value |
+|------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|proxy.remote.server.host| The Flona server host name                                                                                                                                                                                 |   Yes    |               |
+|proxy.remote.server.port| The Flona server port number                                                                                                                                                                               |    No    |     8825      |
+|proxy.remote.client.id| The client id to use for authentication                                                                                                                                                                    |   Yes    |               |
+|proxy.remote.client.secret| The client secret to use for authentication                                                                                                                                                                |    Yes    |               |
+|proxy.remote.network.keep.alive| Toggles the TCP keepalive feature for the connections between the client and the server, a value of true enables the feature otherwise it is disabled, defaults to false                                   |    No    |     false     |
+|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL           |    No    |     false     |
+|proxy.remote.ssl.truststore.file.path| The path to the certifcate trust store to use, **required** when SSL is enabled                                                                                                                            |    No    |               |
+|proxy.remote.ssl.truststore.password| The password for the certifcate trust store, **required** when SSL is enabled                                                                                                                                                                |    No    |               |
+|proxy.remote.ssl.truststore.type| The type of the certifcate trust store                                                                                                                                                                     |    No    |    PKCS12     |
+|proxy.remote.ssl.truststore.algorithm| The algorithm of the certificate trust manager factory                                                                                                                                                     |    No    |               |
+|proxy.remote.ssl.supported.versions| Comma-separated list of the supported SSL versions e.g. `TLSv1.2`,`TLSv1.3`. These must be among those supported by the server                                                                             |    No    |               |
+|proxy.remote.bounded.requests.no-op| Currently, the remote proxy database does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException` |    No    |     false     |
 
 ## File Proxy Database Configuration
-The path to the database config file can be specified via an environment variable or a JVM system property named
-`FLONA_FILE_DB_CFG_LOCATION`, below is an example of the contents of the database config file.
-
-**Note:** `TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target
-database name, implying the values for those properties only apply to a single target database.
+The [File Proxy Database](#file-proxy-database) reads the database definitions from a file, the path to this file can be 
+specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_LOCATION`, the table below 
+documents all the properties that can be defined in a database definition file where `TARGET_DB_NAME` is a placeholder 
+where it exists in a property name and must be replaced with the target database name, implying the values for those 
+properties only apply to a single target database.
 
 | Name | Description | Required | Default Value |
 |------|-------------|:--------:|:-------------:|
@@ -433,8 +458,6 @@ definition. To understand what a full column name means, please refer to the [Da
 |mask.FULL_COLUMN_NAME.number|Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.|No||
 |mask.FULL_COLUMN_NAME.regex|Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.|No||
 |mask.FULL_COLUMN_NAME.indices|Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.|No||
-
-## Client Configuration
 
 # Technical Support
 For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 

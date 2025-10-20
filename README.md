@@ -22,6 +22,7 @@
    2. [Remote Proxy Database](#remote-proxy-database-configuration)
    3. [File Proxy Database](#file-proxy-database-configuration)
    4. [Driver](#driver-configuration)
+   5. [Connection Pooling](#connection-pooling-configuration)
 8. [Technical Support](#technical-support)
 9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 10. [Discussions And Announcements](#discussions-and-announcements)
@@ -487,6 +488,38 @@ definition. To understand what a full column name means, please refer to the [Da
 |mask.FULL_COLUMN_NAME.regex| Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.                                                                                               |No||
 |mask.FULL_COLUMN_NAME.indices| Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.                                                                                    |No||
 |lazy.connections.enabled| (**ONLY supported by** [Remote Proxy Database](#remote-proxy-database)) Turns on a feature where the proxy database delays obtaining a physical connection to the Flona server until the first call that requires a trip to the server is made, default to false. |No|false|
+
+## Connection Pooling Configuration
+Flona comes with built-in connection pooling support for 2 providers i.e. [HikariCP](https://github.com/brettwooldridge/HikariCP) 
+and [c3p0](#https://www.mchange.com/projects/c3p0/). For Flona server specifically, we recommend using c3p0 since most 
+our testing of the server has been done with it.
+
+The pooling behavior is configured directly in the [driver configuration](#driver-configuration) file, it is disabled 
+by default. It is enabled by setting the value of the property `pooling.provider.name`, it is also automatically enabled 
+when any provider pooling property is set and the pooling provider is inferred from any of the configured pooling 
+properties. For instance, if your driver config contains a property named `pooling.c3p0.maxPoolSize`, then the c3p0 
+provider is auto selected. The table below lists the pooling properties with the interpretation as follows for the last 
+2 properties containing placeholders.
+- `pooling.PROVIDER_NAME.PROPERTY_NAME` are provider specific where `PROVIDER_NAME` is a placeholder for 
+the pooling provider name and `PROPERTY_NAME` is the provider specific pooling property name. For example, if you wish 
+to set the maximum pool size, for HikariCP the full property name would be `pooling.hikari.maximumPoolSize` and for c3p0 
+the full property name would be `pooling.c3p0.maxPoolSize`.
+- `DB_INSTANCE_NAME.pooling.PROPERTY_NAME` are properties applied to a data source of a single target database instance 
+where `DB_INSTANCE_NAME` is the database instance name and `PROPERTY_NAME` is the property name. For example, if you 
+want to set the maximum pool size for a database instance named `mysql-prod` and, you are using c3p0 as the provider, 
+the full property name would be `mysql-prod.pooling.maxPoolSize`. **Note** that these values take precedence over 
+similar ones set at the provider level. It implies that you can globally configure the pooling behavior for all the 
+database instances with `pooling.PROVIDER_NAME.PROPERTY_NAME` and then override any values for specific instance with 
+`DB_INSTANCE_NAME.pooling.PROPERTY_NAME`.
+
+| Name                               | Description                                                                                                                                                                                                                               | Required |  Default Value  |
+|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:---------------:|
+| pooling.provider.name              | Specifies the connection pooling provider to use, possible values are `hikari` and `c3p0`, this is optional since the provider can be inferred from the provider specific property names.                                                 |    No    ||
+| pooling.PROVIDER_NAME.PROPERTY_NAME    | Specifies the value of a provider specific pooling property where `PROVIDER_NAME` is the provider name and `PROPERTY_NAME` is the property name, provider applies default values.                                                         |    No    ||
+| DB_INSTANCE_NAME.pooling.PROPERTY_NAME | Specifies the value of a pooling property applied to a data source of a single target database instance where `DB_INSTANCE_NAME` is the database instance name and `PROPERTY_NAME` is the property name, provider applies default values. |    No    ||
+
+> [!WARNING]
+> DO NOT mix properties from both providers otherwise they will be rejected.
 
 # Technical Support
 For more details about Flona and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 

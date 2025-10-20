@@ -14,8 +14,9 @@
    2. [Remote](#remote-proxy-database)
    3. [File](#file-proxy-database)
 6. [Features](#features)
-   1. [Runtime Configuration Reload](#runtime-configuration-reload)
-   2. [Data Masking](#data-masking)
+   1. [Connection Pooling](#connection-pooling)
+   2. [Runtime Configuration Reload](#runtime-configuration-reload)
+   3. [Data Masking](#data-masking)
 7. [Configuration](#configuration)
    1. [Server](#server-configuration)
    2. [Remote Proxy Database](#remote-proxy-database-configuration)
@@ -30,7 +31,7 @@
     2. [1.0.0](1-0-0/README.md)
 
 # Overview
-FlonaDB is a free abstraction of a database proxy that allows your application to loosely connect to target database 
+Flona is a free abstraction of a database proxy that allows your application to loosely connect to target database 
 instances using unique logical names or keys. It differs from a traditional database because it can't be used alone 
 without a traditional target database instance. In fact, you can have multiple applications connect to multiple database 
 instances using a single centralized configuration and setup.
@@ -44,20 +45,21 @@ information is managed and read fom a file, this file could be located on a shar
 versions we intend to add other implementations that are managed and read connection information from a database, 
 environment variables, secret key manager etc.
 
-FlonaDB effectively becomes a Type 3 JDBC driver when it is deployed in the client-server fashion. 
+Flona effectively becomes a Type 3 JDBC driver when it is deployed in the client-server fashion. 
 
 The database proxy knows about the location of the database instances and any other necessary information needed to 
 connect to them e.g. connection URL, username, password etc. There is a lot of possibilities that come to mind if you 
 carefully think through all this, you can sandwich a plethora of cool centralized features that are agnostic to the 
 database systems between your applications and the database instances like integrating a custom security model result 
-set caching, shared connection pooling, data masking, collecting statistics, connection management and monitoring, 
-query timing and logging etc.
+set caching, shared connection pooling, data masking, collecting metrics, connection management and monitoring, query 
+timing and logging etc.
 
-Note: Currently, only a JDBC driver is available for FlonaDB. It can be used by any application written with any of 
-languages in the Java family. Python users can also use it alongside [this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). 
-We will be working on drivers for other languages in the future.
+Note: Currently, only a JDBC driver is available for Flona. It can be used by any application written with any of 
+languages in the Java family. Python users can also use it via 
+[this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). We will be working on drivers for other languages in 
+the future.
 
-**FlonaDB is available for use for free.**
+**Flona is available for use for free.**
 
 # Features Overview
 Note that all the features below are independent of the target database management system.
@@ -72,22 +74,23 @@ between the client and proxy server, we intend to add a way to plug in custom au
 and to provide other features e.g. to retrieve client secrets and database user passwords from a secret key manager.
 - Database system independence, it means in theory you can swap the target database system without changing client code 
   as long as the client applications are written in such a way that they are agnostic to the target database system 
-  behind. And, you can plug in features that cut across all the database systems like collecting statistics, a custom 
+  behind. And, you can plug in features that cut across all the database systems like collecting metrics, a custom 
   security model, connection timeouts, data masking etc.
-- Shared connection pooling between applications.
+- Shared connection pooling between applications, a feature that can greatly minimise the number of open physical 
+  connections to the target database instances.
 - Data masking of configured column values both in the client application and the remote server.
 - Whitelisting of clients by IP address or subnet.
 
-We're constantly adding new important features to FlonaDB in newer versions.
+We're constantly adding new important features to Flona in newer versions.
 
 # Getting Started
 ## Server Installation
-Technically speaking, when FlonaDB is deployed to operate over a network, it acts a Type 3 (network) JDBC driver, with 
+Technically speaking, when Flona is deployed to operate over a network, it acts a Type 3 (network) JDBC driver, with 
 the server application being the server component and the JDBC driver providing the client component. The server 
 application is a standard Spring Boot executable jar that processes database requests from the client driver and sends 
 back the responses.
 
-It's worthy noting that the server internally uses FlonaDB again in a 'forward' proxy mode to process client requests 
+It's worthy noting that the server internally uses Flona again in a 'forward' proxy mode to process client requests 
 against a target database instance via an internal [File Proxy Database](#file-proxy-database) setup.
 
 > [!IMPORTANT]
@@ -154,9 +157,9 @@ Please use this [server example](examples/server) as a guide.
 6. `application.properties` is a standard Spring Boot [application properties](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties),
    the example file contains the properties below.
    ```properties
-   proxy.security.clients.file.path=clients.properties
+   flona.security.clients.file.path=clients.properties
    ```
-   We add a single property named `proxy.security.clients.file.path` with its value set to the path to the clients 
+   We add a single property named `flona.security.clients.file.path` with its value set to the path of the clients 
    file we looked at in **Step 5**. Please refer to [Server Configuration](#server-configuration) for more 
    details, also feel free to add other applicable Spring Boot properties. 
 7. Create a new directory named `drivers` in the installation directory, any required JDBC drivers for the target 
@@ -187,7 +190,7 @@ the console, this is a default behavior from Spring Boot, please refer to [loggi
 for how you can change the log configuration.
 
 ## Client Setup
-### Getting FlonaDB Driver
+### Getting Flona Driver
 #### Download
 
 You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.2.0&e=jar) 
@@ -260,7 +263,7 @@ variable or a JVM system property named `FLONA_DRIVER_CFG_LOCATION`.
 
 ### Obtaining A Connection
 Make sure you have done the following below,
-- Added to your application's classpath the Flona DB.
+- Added to your application's classpath the Flona.
 - Configured the location of the [Driver Configuration](#driver-configuration) file.
 
 #### Using DriverManager
@@ -296,8 +299,9 @@ As of version 1.2.0, there is only 2 proxy implementations i.e. [Remote Proxy Da
 ## Remote Proxy Database
 This is a Type 3 JDBC driver implementation of proxy database, the driver comes in form of 2 components, a client JDBC 
 driver component which communicates with the server component over a network to process database calls made by the 
-client application. The database instance definitions are maintained on the Flona server and client only needs to know 
-how to connect to the server and passes to it the logical name of the database instance it wants to connect to and use.
+client application. The server component is a TCP/IP server embedded inside a Spring Boot application. The database 
+instance definitions are maintained on the Flona server and clients only need to know how to connect to the server and 
+pass to it the logical names of the database instances they want to connect to and use.
 
 **Note** No JDBC drivers have to be added to the classpath of the client application with this proxy, they are only 
 added to the server.
@@ -343,13 +347,15 @@ path to the file as the value of an environment variable or a JVM system propert
 > [File Proxy Database Configuration](#file-proxy-database-configuration) 
 
 # Features
+## Connection Pooling
+TODO Document minimizing of open connections
 ## Runtime Configuration Reload
 TODO Explain use cases of this
 ## Data Masking
 Different database systems provide functions that can be used in queries to mask values in a result set but these 
 functions are database specific and used in individual queries.
 
-FlonaDB provides a database independent masking feature at the application level which allows developers to externally 
+Flona provides a database independent masking feature at the application level which allows developers to externally 
 configure column whose values should be masked in result sets, the masking rules are applied to all applicable result 
 set values. Currently, the masking is only applicable to columns of data types that map to String class in Java.
 
@@ -412,13 +418,22 @@ user-facing application.
 
 # Configuration
 ## Server Configuration
+The Flona Server is TCP/IP server embedded inside a Spring Boot application, so any applicable Spring Boot [application property](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties)
+can set used. The table below documents all the custom driver properties the server application exposes.
 
-| Name | Description | Required | Default Value |
-|------|-------------|:--------:|:-------------:|
-|| |||
-|||||
-|||||
-|||||
+| Name | Description                                                                                                                                                                                       | Required | Default Value |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|flona.server.port| The port the server should Listen on for client requests.                                                                                                                                         |    NO    |     8825      |
+|flona.server.thread.count| The number of threads the server should use to concurrently process client requests.                                                                                                              |    NO    |      16       |
+|flona.network.backlog.max.size| Sets the TCP backlog size for the server.                                                                                                                                                         |    NO    |      128      |
+|flona.network.allowed.ip.list| Comma separated list of the client IP addresses and Subnets to accept e.g. `100.63.89.1, 99.63.144.0/21`, leave blank to allow all.                                                               |    NO    |               |
+|flona.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL. |    NO    |     false     |
+|flona.ssl.keystore.file.path| The path to the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                     |    NO    |               |
+|flona.ssl.keystore.password| The password for the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                |    NO    |               |
+|flona.ssl.keystore.type| The type of the keystore containing the server certificate.                                                                                                                                       |    NO    |               |
+|flona.ssl.keystore.algorithm| Specifies the name of key manager factory algorithm.                                                                                                                                              |    NO    |               |
+|flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                        |    NO    |               |
+|flona.security.clients.file.path| The path to the file containing the client account configurations.                                                                                                                                |   Yes    |               |
 
 ## Remote Proxy Database Configuration
 The [Remote Proxy Database](#remote-proxy-database) uses a client-server architecture, it means the client application 
@@ -427,21 +442,20 @@ does not need to know the details of how to connect to the targets themselves. T
 connects to the server are directly defined in the [Driver Configuration](#driver-configuration) file, the table below 
 documents all the extra driver properties the remote proxy exposes.
 
-| Name | Description                                                                                                                                                                                                                                          | Required | Default Value |
-|------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
-|proxy.remote.server.host| The Flona server host name                                                                                                                                                                                                                           |   Yes    |               |
-|proxy.remote.server.port| The Flona server port number                                                                                                                                                                                                                         |    No    |     8825      |
-|proxy.remote.client.id| The client id to use for authentication                                                                                                                                                                                                              |   Yes    |               |
-|proxy.remote.client.secret| The client secret to use for authentication                                                                                                                                                                                                          |   Yes    |               |
-|proxy.remote.network.keep.alive| Toggles the TCP keepalive feature for the connections between the client and the server, a value of true enables the feature otherwise it is disabled, defaults to false                                                                             |    No    |     false     |
-|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL                                                     |    No    |     false     |
-|proxy.remote.ssl.truststore.file.path| The path to the certifcate trust store to use, **required** when SSL is enabled                                                                                                                                                                      |    No    |               |
-|proxy.remote.ssl.truststore.password| The password for the certifcate trust store, **required** when SSL is enabled                                                                                                                                                                        |    No    |               |
-|proxy.remote.ssl.truststore.type| The type of the certifcate trust store                                                                                                                                                                                                               |    No    |               |
-|proxy.remote.ssl.truststore.algorithm| The algorithm of the certificate trust manager factory                                                                                                                                                                                               |    No    |               |
-|proxy.remote.ssl.supported.versions| Comma-separated list of the supported SSL versions e.g. `TLSv1.2`,`TLSv1.3`. These must be among those supported by the server                                                                                                                       |    No    |               |
-|lazy.connections.enabled| Turns on a feature where the proxy database delays obtaining a physical connection to the Flona server until the first call that requires a trip to the server is made, default to false                                                             |    No    |     false     |
-|proxy.remote.bounded.requests.no-op| Currently, the remote proxy database does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException` |    No    |     false     |
+| Name | Description                                                                                                                                                                                                                                           | Required | Default Value |
+|------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|proxy.remote.server.host| The host name to use to connect to the Flona server application.                                                                                                                                                                                      |   Yes    |               |
+|proxy.remote.server.port| The port number to use to connect to the Flona server application.                                                                                                                                                                                    |    No    |     8825      |
+|proxy.remote.client.id| The client id to use for authentication.                                                                                                                                                                                                              |   Yes    |               |
+|proxy.remote.client.secret| The client secret to use for authentication.                                                                                                                                                                                                          |   Yes    |               |
+|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL.                                                     |    No    |     false     |
+|proxy.remote.ssl.truststore.file.path| The path to the certificate trust store to use, **required** when SSL is enabled.                                                                                                                                                                     |    No    |               |
+|proxy.remote.ssl.truststore.password| The password for the certificate trust store, **required** when SSL is enabled.                                                                                                                                                                       |    No    |               |
+|proxy.remote.ssl.truststore.type| The type of the certificate trust store.                                                                                                                                                                                                              |    No    |               |
+|proxy.remote.ssl.truststore.algorithm| Specifies the name of trust manager factory algorithm.                                                                                                                                                                                                |    No    |               |
+|proxy.remote.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`. These must be among those supported by the server.                                                                                                                         |    No    |               |
+|lazy.connections.enabled| Turns on a feature where the proxy database delays obtaining a physical connection to the Flona server until the first call that requires a trip to the server is made, default to false.                                                             |    No    |     false     |
+|proxy.remote.bounded.requests.no-op| Currently, the remote proxy database does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException`. |    No    |     false     |
 
 ## File Proxy Database Configuration
 The [File Proxy Database](#file-proxy-database) reads the database instance definitions from a file, the path to this 
@@ -475,7 +489,7 @@ definition. To understand what a full column name means, please refer to the [Da
 |mask.FULL_COLUMN_NAME.indices|Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.|No||
 
 # Technical Support
-For more details about FlonaDB and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 
+For more details about Flona and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 
 page.
 
 # Request A New Feature Or File A Bug

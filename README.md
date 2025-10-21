@@ -219,7 +219,19 @@ Add the dependencies below to your pom file for the driver.
 </dependency>
 ```
 
-TODO describe the 3 dependencies above.
+**Note** that you don't always need the last 2 dependencies, below is the explanation of the purpose of each dependency, 
+which should guide you to make the correct decision when selecting which ones you need.
+- `flona-driver-final`(Required): Provides the basic Flona features i.e. JDBC driver, FlonaDataSource, dynamic 
+reloading, masking and the [File Proxy Database](#file-proxy-database). It is a simple jar and the code is written 
+against the standard JDK library only therefore it comes with no extra transitive dependencies.
+- `flona-driver-ext-final`(Optional): Provides some useful extensions to the driver like connection pooling and an 
+alternative polling file watcher to the built-in one that is provided by the standard Flona driver, it is based on 
+Apache [commons-io](https://commons.apache.org/proper/commons-io), these polling file watchers can be used in situations 
+where the WatchService based watcher does not work e.g. in containerized environments. When this dependency is present 
+on the classpath, Flona automatically defaults to the common-io based file watcher when the polling watcher is enabled. 
+For more details on toggling between polling and using the WatchService please see [Dynamic Configuration Reload](#dynamic-configuration-reload). 
+Because the code is written against third some party libraries, it comes with extra transitive dependencies.
+- `flona-db-ext-final`(Optional): Provides the [Remote Proxy Database](#remote-proxy-database). 
 
 ### Requirements 
 - Java 17.
@@ -371,6 +383,15 @@ resources for other tasks.
 Flona comes with support for 2 providers you can select from i.e. [HikariCP](https://github.com/brettwooldridge/HikariCP) 
 and [c3p0](https://www.mchange.com/projects/c3p0). Please refer to the [Connection Pooling Configuration](#connection-pooling-configuration) 
 section for how to enable and configure connection pooling.
+
+Connection pooling requires the Flona driver extensions dependency below,
+```properties
+<dependency>
+    <groupId>com.amiyul.flona</groupId>
+    <artifactId>flona-driver-ext-final</artifactId>
+    <version>1.2.0</version>
+</dependency>
+```
 ## Dynamic Configuration Reload
 Flona supports dynamic reloading of some configuration files at runtime i.e. you can modify the file contents and the 
 changes are picked up without the need to restart the client applications or the server component when using the remote 

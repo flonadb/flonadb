@@ -1,4 +1,4 @@
-<h1 style="color: maroon">Flona Documentation</h1>
+# Flona Documentation
 
 ## Table Of Contents
 1. [Overview](#overview)
@@ -15,7 +15,7 @@
    3. [File](#file-proxy-database)
 6. [Features](#features)
    1. [Connection Pooling](#connection-pooling)
-   2. [Runtime Configuration Reload](#runtime-configuration-reload)
+   2. [Dynamic Configuration Reload](#dynamic-configuration-reload)
    3. [Data Masking](#data-masking)
 7. [Configuration](#configuration)
    1. [Server](#server-configuration)
@@ -315,7 +315,8 @@ To use a remote proxy database, you need to do the following,
 ## File Proxy Database
 This is a proxy database implementation that reads the database instance definitions from a file, it is 100% client side 
 and runs inside the same JVM as the client application, it requires adding the required JDBC drivers to the classpath of 
-the client application.
+the client application. This is a good option that you can use to quickly add Flona to your project and evaluate some 
+of the common features like masking, pooling, dynamic reloading of configurations.
 
 To use a file proxy database, you need to do the following,
 - Create a database instance definition file that defines the database instance logical names and any necessary 
@@ -344,17 +345,17 @@ the contents of the instance definition file.
 path to the file as the value of an environment variable or a JVM system property named `FLONA_FILE_DB_CFG_LOCATION`.
 
 > [!NOTE]
-> The File Proxy Database supports runtime reloading of the database instance definition file, to enable this see 
+> The File Proxy Database supports dynamic reloading of the database instance definition file, to enable this see 
 > [File Proxy Database Configuration](#file-proxy-database-configuration) 
 
 # Features
 ## Connection Pooling
-[Connection pooling](#https://en.wikipedia.org/wiki/Connection_pool) is an important feature that a modern application 
+[Connection pooling](https://en.wikipedia.org/wiki/Connection_pool) is an important feature that a modern application 
 should use to improve performance. Flona provides built-in connection pooling which is not enabled by default that way 
 in case you're adding Flona to your existing client application with pooling already in use, you don't have to enable 
 it.
 
-When using the [remote proxy database](#remote-proxy-database), it is **strongly** recommended to enable pooling on the 
+When using the [Remote Proxy Database](#remote-proxy-database), it is **strongly** recommended to enable pooling on the 
 Flona server because it greatly improves the performance of both the server and the client applications. Another benefit 
 is that the server can serve multiple clients with few connections than they would all require in total to perform 
 optimally. Imagine a database accessed by 10 different applications and each application has a connection pool 
@@ -367,9 +368,16 @@ this effectively makes 100 the global maximum connection count across all applic
 resources for other tasks.
 
 Flona comes with support for 2 providers you can select from i.e. [HikariCP](https://github.com/brettwooldridge/HikariCP) 
-and [c3p0](#https://www.mchange.com/projects/c3p0/).
-## Runtime Configuration Reload
-TODO Explain use cases of this
+and [c3p0](https://www.mchange.com/projects/c3p0). Please refer to the [Connection Pooling Configuration](#connection-pooling-configuration) 
+section for how to enable and configure connection pooling.
+## Dynamic Configuration Reload
+Flona supports dynamic reloading of some configuration files at runtime i.e. you can modify the file contents and the 
+changes are picked up without the need to restart the client applications or the server component when using the remote 
+proxy database hence no downtime for your applications. The configurations that support this feature are 
+[Driver Configuration](#driver-configuration) and [File Proxy Database Configuration](#file-proxy-database-configuration).
+It implies when database passwords are rotated, you can update them in the database instance definition file for the 
+file proxy database without an application restart, and they get picked up. **Note** that it can take up to 5 seconds
+before the changes are applied. 
 ## Data Masking
 Different database systems provide functions that can be used in queries to mask values in a result set but these 
 functions are database specific and used in individual queries.
@@ -377,7 +385,6 @@ functions are database specific and used in individual queries.
 Flona provides a database independent masking feature at the application level which allows developers to externally 
 configure column whose values should be masked in result sets, the masking rules are applied to all applicable result 
 set values. Currently, the masking is only applicable to columns of data types that map to String class in Java.
-
 ### String Mask Modes
 A mask mode specifies the masking behavior or rules applied to column values. If no mode is specified, by default a mask 
 of random length is generated, with the length being at least 2 unless the column length in the database is set to 1, 
@@ -440,19 +447,19 @@ user-facing application.
 The Flona Server is TCP/IP server embedded inside a Spring Boot application, so any applicable Spring Boot [application property](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties)
 can set used. The table below documents all the custom driver properties the server application exposes.
 
-| Name | Description                                                                                                                                                                                       | Required | Default Value |
-|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
-|flona.server.port| The port the server should Listen on for client requests.                                                                                                                                         |    NO    |     8825      |
-|flona.server.thread.count| The number of threads the server should use to concurrently process client requests.                                                                                                              |    NO    |      16       |
-|flona.network.backlog.max.size| Sets the TCP backlog size for the server.                                                                                                                                                         |    NO    |      128      |
-|flona.network.allowed.ip.list| Comma separated list of the client IP addresses and Subnets to accept e.g. `100.63.89.1, 99.63.144.0/21`, leave blank to allow all.                                                               |    NO    |               |
-|flona.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL. |    NO    |     false     |
-|flona.ssl.keystore.file.path| The path to the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                     |    NO    |               |
-|flona.ssl.keystore.password| The password for the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                |    NO    |               |
-|flona.ssl.keystore.type| The type of the keystore containing the server certificate.                                                                                                                                       |    NO    |               |
-|flona.ssl.keystore.algorithm| Specifies the name of key manager factory algorithm.                                                                                                                                              |    NO    |               |
-|flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                        |    NO    |               |
-|flona.security.clients.file.path| The path to the file containing the client account configurations.                                                                                                                                |   Yes    |               |
+| Name | Description                                                                                                                                                                                      | Required | Default Value |
+|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|flona.security.clients.file.path| The path to the file containing the client account configurations.                                                                                                                               |   Yes    |               |
+|flona.server.port| The port the server should listen on for incoming client requests.                                                                                                                               |    No    |     8825      |
+|flona.server.thread.count| The number of threads the server should use to concurrently process client requests, defaults to twice the processors available to the JVM.                                                   |    No    |      16       |
+|flona.network.backlog.max.size| Sets the TCP backlog size for the server.                                                                                                                                                        |    No    |      128      |
+|flona.network.allowed.ip.list| Comma separated list of the client IP addresses and subnets to accept e.g. `100.63.89.1, 99.63.144.0/21`, leave blank to allow all.                                                              |    No    |               |
+|flona.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL. |    No    |     false     |
+|flona.ssl.keystore.file.path| The path to the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                    |    No    |               |
+|flona.ssl.keystore.password| The password for the keystore containing the server certificate, **required** when SSL is enabled.                                                                                               |    No    |               |
+|flona.ssl.keystore.type| The type of the keystore containing the server certificate.                                                                                                                                      |    No    |               |
+|flona.ssl.keystore.algorithm| Specifies the name of key manager factory algorithm.                                                                                                                                             |    No    |               |
+|flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                       |    No    |               |
 
 ## Remote Proxy Database Configuration
 The [Remote Proxy Database](#remote-proxy-database) uses a client-server architecture, it means the client application 
@@ -477,10 +484,11 @@ documents all the extra driver properties the remote proxy exposes.
 
 ## File Proxy Database Configuration
 The [File Proxy Database](#file-proxy-database) reads the database instance definitions from a file, the path to this 
-file can be specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_LOCATION`, the table 
-below documents all the properties that can be defined in a database instance definition file where `TARGET_DB_NAME` is 
-a placeholder where it exists in a property name and must be replaced with the target database instance name, implying 
-the values for those properties only apply to a single instance.
+file can be specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_LOCATION`.
+
+The table below documents all the properties that can be defined in a database instance definition file where 
+`TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target database 
+instance name, implying the values for those properties only apply to a single instance.
 
 | Name | Description                                                                 | Required | Default Value |
 |------|-----------------------------------------------------------------------------|:--------:|:-------------:|
@@ -488,6 +496,10 @@ the values for those properties only apply to a single instance.
 |TARGET_DB_NAME.url| The URL of the database to which to connect.                                |Yes||
 |TARGET_DB_NAME.properties.user| The user to use to connect to the database.                                 |No||
 |TARGET_DB_NAME.properties.password| The user password to use to connect to the database.                        |No||
+
+**Note** You can set any other properties accept by the JDBC driver of the target database system by adding a property 
+matching the pattern `TARGET_DB_NAME.properties.PROPERTY_NAME` where `PROPERTY_NAME` is the name of the property you 
+wish to set.
 
 ## Driver Configuration
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
@@ -509,14 +521,20 @@ definition. To understand what a full column name means, please refer to the [Da
 
 ## Connection Pooling Configuration
 Flona comes with built-in connection pooling support with 2 possible providers you can select from i.e. 
-[HikariCP](https://github.com/brettwooldridge/HikariCP) and [c3p0](#https://www.mchange.com/projects/c3p0/).
+[HikariCP](https://github.com/brettwooldridge/HikariCP) and [c3p0](https://www.mchange.com/projects/c3p0).
 
 The pooling behavior is configured in the [driver configuration](#driver-configuration) file, it is disabled 
-by default. It can be enabled by setting the value of the property named `pooling.provider.name`, possible values are `hikari` 
-and `c3p0`. It is also automatically enabled when any provider pooling property is set globally, in this case the 
-pooling provider is inferred from any of the configured pooling properties themselves. For instance, if your driver 
+by default. It can be enabled by setting the value of the property named `pooling.provider.name`, possible values are 
+`hikari` and `c3p0`. It is also automatically enabled when any provider pooling property is set globally, in this case 
+the pooling provider is inferred from any of the configured pooling properties themselves. For instance, if your driver 
 config contains a property named `pooling.c3p0.maxPoolSize`, then the c3p0 provider is auto selected. You **cannot** add 
-properties for both providers in the same config file otherwise it will be rejected. Pooling properties 
+properties for both providers in the same config file otherwise it will be rejected.
+
+Because the server component for the remote proxy internally uses a file proxy database, it implies pooling in the Flona 
+server is configured via its internal driver configuration file and database instance specific configurations are based 
+on the target database instances defined its embedded file proxy database.
+
+Pooling properties 
 can be defined globally for all database instance and can be overridden one by one for a specific target database instance using the formats below
 - `pooling.PROVIDER_NAME.PROPERTY_NAME` are provider specific where `PROVIDER_NAME` is a placeholder for 
 the pooling provider name and `PROPERTY_NAME` is the provider specific pooling property name. For example, if you wish 

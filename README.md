@@ -23,11 +23,12 @@
    3. [File Proxy Database](#file-proxy-database-configuration)
    4. [Driver](#driver-configuration)
    5. [Connection Pooling](#connection-pooling-configuration)
-8. [Technical Support](#technical-support)
-9. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
-10. [Discussions And Announcements](#discussions-and-announcements)
-11. [End-User License Agreement](#end-user-license-agreement)
-12. [Documentation For Older Versions](#documentation-for-older-versions)
+8. [Unsupported JDBC Methods]()
+9. [Technical Support](#technical-support)
+10. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
+11. [Discussions And Announcements](#discussions-and-announcements)
+12. [End-User License Agreement](#end-user-license-agreement)
+13. [Documentation For Older Versions](#documentation-for-older-versions)
     1. [1.1.0](1-1-0/README.md)
     2. [1.0.0](1-0-0/README.md)
 
@@ -510,15 +511,15 @@ The path to the driver config file can be specified via an environment variable 
 be replaced with the full column name, implying the values for those properties only apply to a single column mask 
 definition. To understand what a full column name means, please refer to the [Data Masking](#data-masking) section.
 
-| Name | Description                                                                                                                                                                                                                                                                                           |  Required  |  Default Value  |
-|------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------:|
-|config.hot.reload.enabled| When set to true, dynamic reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup.                                                |No|false|
-|mask.columns| Specifies a comma-separated list of full column names in result sets whose values should be masked.                                                                                                                                                                                                   |No||
-|mask.FULL_COLUMN_NAME.mode| Specifies the masking mode to apply to the column matching the full column name.                                                                                                                                                                                                                      |No||
-|mask.FULL_COLUMN_NAME.number| Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.                                                                                                                                 |No||
-|mask.FULL_COLUMN_NAME.regex| Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.                                                                                                                                   |No||
-|mask.FULL_COLUMN_NAME.indices| Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.                                                                                                                        |No||
-|lazy.connections.enabled| (**ONLY supported by** [Remote Proxy Database](#remote-proxy-database)) When set to true, obtaining of a physical connection to the Flona server is deferred until the first call that requires a trip to the server is made, this reduces the number of calls made to the server, defaults to false. |No|false|
+| Name | Description                                                                                                                                                                                                                                                                          |  Required  |  Default Value  |
+|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------:|
+|config.hot.reload.enabled| When set to true, dynamic reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup.                               |No|false|
+|mask.columns| Specifies a comma-separated list of full column names in result sets whose values should be masked.                                                                                                                                                                                  |No||
+|mask.FULL_COLUMN_NAME.mode| Specifies the masking mode to apply to the column matching the full column name.                                                                                                                                                                                                     |No||
+|mask.FULL_COLUMN_NAME.number| Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.                                                                                                                |No||
+|mask.FULL_COLUMN_NAME.regex| Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.                                                                                                                  |No||
+|mask.FULL_COLUMN_NAME.indices| Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.                                                                                                       |No||
+|lazy.connections.enabled| (**ONLY supported by** [Remote Proxy Database](#remote-proxy-database)) When set to true, obtaining of a physical connection to the Flona server is deferred until the first call that requires a trip to the server is made, **this feature is still maturing**, defaults to false. |No|false|
 
 ## Connection Pooling Configuration
 Flona comes with built-in connection pooling support with 2 possible providers you can select from i.e. 
@@ -551,7 +552,10 @@ database instances with `pooling.PROVIDER_NAME.PROPERTY_NAME` and then override 
 >[!WARNING]
 > Note that setting instance specific pooling properties only does not enable pooling, you would need to set 
 > `pooling.provider.name` or at least one property globally for the provider.
-
+# Unsupported JDBC Methods
+There is several methods from the JDBC specification that are not yet implemented or supported by Flona Driver, calling 
+them will result in a `java.sql.SQLFeatureNotSupportedException` getting thrown, but we're actively working on adding 
+support for these methods in future versions.
 # Technical Support
 For more details about Flona and technical support, please reach out to us via our [contact us](https://amiyul.com/contact-us) 
 page.

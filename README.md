@@ -349,7 +349,25 @@ path to the file as the value of an environment variable or a JVM system propert
 
 # Features
 ## Connection Pooling
-TODO Document minimizing of open connections
+[Connection pooling](#https://en.wikipedia.org/wiki/Connection_pool) is an important feature that a modern application 
+should use to improve performance. Flona provides built-in connection pooling which is not enabled by default that way 
+in case you're adding Flona to your existing client application with pooling already in use, you don't have to enable 
+it.
+
+When using the [remote proxy database](#remote-proxy-database), it is **strongly** recommended to enable pooling on the 
+Flona server because it greatly improves the performance of both the server and the client applications. Another benefit 
+is that the server can serve multiple clients with few connections than they would all require in total to perform 
+optimally. Imagine a database accessed by 10 different applications and each application has a connection pool 
+configured to maintain a minimum and maximum count of 50 of both idle and active connections, that is a total of 500 
+open connections on the server which may not all be actively in use at all times, causing redundancy, most pooling 
+technologies provide configuration options to try and mitigate this scenario but let's just take this as an example for 
+demonstration purposes. When using the Flona remote proxy, the admin can choose to centrally reduce the connection count 
+from 500 by setting a smaller pool size window e.g. 50 for minimum and 100 for maximum if they deem it to be sufficient, 
+this effectively makes 100 the global maximum connection count across all applications which would free up extra server 
+resources for other tasks.
+
+Flona comes with support for 2 providers you can select from i.e. [HikariCP](https://github.com/brettwooldridge/HikariCP) 
+and [c3p0](#https://www.mchange.com/projects/c3p0/).
 ## Runtime Configuration Reload
 TODO Explain use cases of this
 ## Data Masking

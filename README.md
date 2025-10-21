@@ -325,6 +325,14 @@ To use a remote proxy database, you need to do the following,
 - [Configure the client application](#client-setup) by setting the value of the `db.provider` property to 
 `remote` in the [Driver Configuration](#driver-configuration)
 
+Remote proxy database requires adding the Flona database extensions dependency below to your classpath,
+```xml
+<dependency>
+    <groupId>com.amiyul.flona</groupId>
+    <artifactId>flona-db-ext-final</artifactId>
+    <version>1.2.0</version>
+</dependency>
+```
 ## File Proxy Database
 This is a proxy database implementation that reads the database instance definitions from a file, it is 100% client side 
 and runs inside the same JVM as the client application, it requires adding the required JDBC drivers to the classpath of 
@@ -384,8 +392,8 @@ Flona comes with support for 2 providers you can select from i.e. [HikariCP](htt
 and [c3p0](https://www.mchange.com/projects/c3p0). Please refer to the [Connection Pooling Configuration](#connection-pooling-configuration) 
 section for how to enable and configure connection pooling.
 
-Connection pooling requires the Flona driver extensions dependency below,
-```properties
+Connection pooling requires adding the Flona driver extensions dependency below to your classpath,
+```xml
 <dependency>
     <groupId>com.amiyul.flona</groupId>
     <artifactId>flona-driver-ext-final</artifactId>

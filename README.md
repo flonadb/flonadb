@@ -56,6 +56,15 @@ database systems between your applications and the database instances like integ
 set caching, shared connection pooling, data masking, collecting metrics, connection management and monitoring, query 
 timing and logging etc.
 
+With the rise of many client side and middleware technologies providing features that cut across different database 
+systems and applications e.g. connection pooling, caching, load balancing, failover, connection timeout, transaction 
+isolation, using secret managers to store database credentials, user access management etc. There is a growing list of 
+aspects you need to duplicate through configuration and installation and in a decentralized way, we strongly believe 
+tools like Flona are stepping up to provide a rather centralized approach that is database agnostic e.g. for an 
+organization or department.
+> [!NOTE]
+> Be sure to check out our [Motivation](motivation/README.md) page for more.
+
 Note: Currently, only a JDBC driver is available for Flona. It can be used by any application written with any of 
 languages in the Java family. Python users can also use it via 
 [this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). We will be working on drivers for other languages in 
@@ -70,6 +79,8 @@ Note that all the features below are independent of the target database manageme
   required information for multiple applications making it easier to update all applications at once when the connection 
   credentials change. It also means you can rotate databases credentials in the proxy more frequently while you rarely 
   rotate of those of the client applications which minimizes downtime.
+- Centralized access management, when using the remote Flona proxy server, clients have access to the server and not the 
+database instances, it means 
 - Dynamic reloading of database credentials and configuration properties at runtime.
 - An added layer of security, as of version 1.2.0, only client id and secret key based authentication is supported 
 between the client and proxy server, we intend to add a way to plug in custom authentication and authorization schemes 
@@ -322,8 +333,8 @@ added to the server.
 
 To use a remote proxy database, you need to do the following,
 - [Install the Flona server](#server-installation).
-- [Configure the client application](#client-setup) by setting the value of the `db.provider` property to 
-`remote` in the [Driver Configuration](#driver-configuration)
+- [Configure the client application](#client-setup) by setting the value of the `db.provider` property to `remote` in 
+the [Driver Configuration](#driver-configuration)
 
 Remote proxy database requires adding the Flona database extensions dependency below to your classpath,
 ```xml
@@ -408,6 +419,11 @@ proxy database hence no downtime for your applications. The configurations that 
 It implies when database passwords are rotated, you can update them in the database instance definition file for the 
 file proxy database without an application restart, and they get picked up. **Note** that it can take up to 5 seconds
 before the changes are applied.
+
+Imagine you had a high availability application that runs a batch job every 2 hours, the job is the only component that
+requires access to a specific database instance and the database password is rotated, the devops team receives a
+notification 1hr before the next run with the new password, with this feature they can update the password in the 
+database definition file without bringing down the application.
 > [!NOTE]
 > By default, Flona relies on Java's WatchService to watch for changes in the reloadable config files but this might 
 > not work in containerized environments e.g. in Docker containers. In these cases you need to switch to the alternative 

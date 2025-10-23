@@ -73,7 +73,10 @@ the future.
 **Flona is available for use for free.**
 
 # Features Overview
-Note that all the features below are independent of the target database management system.
+The features provided by Flona are not new by any stretch, many of them are generally provided by existing technologies 
+that vary but what Flona does is to centralize them and, in a database system independent way from the perspective if a 
+client application.
+
 - Client applications identify database instances using intuitive unique logical names instead of host name and port.
 - Centralized management of database instance connection credentials like host name, port, username, password and other 
   required information for multiple applications making it easier to update all applications at once when the connection 
@@ -182,7 +185,7 @@ Please use this [server example](examples/server) as a guide.
     ```shell
     # Add the JDBC drivers to this directory
     export LOADER_PATH=drivers
-    export FLONA_FILE_DB_CFG_LOCATION=db.properties
+    export FLONA_FILE_DB_CFG_PATH=db.properties
     MAIN_CLASS=com.amiyul.flona.db.remote.server.ServerBootstrap
     SPRING_LAUNCHER=org.springframework.boot.loader.PropertiesLauncher
     # You might have to change the server jar name below to match that of the downloaded file
@@ -190,7 +193,7 @@ Please use this [server example](examples/server) as a guide.
     ```
    This is just a way to run a Spring boot application, we export an environment variable `LOADER_PATH` with a value of 
    `drivers` which is the path to directory we saw earlier where to load extra jars which in our case will be the JDBC 
-   drivers for the target database systems. We also define another environment variable `FLONA_FILE_DB_CFG_LOCATION` 
+   drivers for the target database systems. We also define another environment variable `FLONA_FILE_DB_CFG_PATH` 
    with a value of `db.properties` which is the path to the `File Proxy Database` file we looked at in **Step 4**.
 
    **Note** Remember to replace `flona-server-1.2.0.jar` with the actual name of the server jar file you downloaded in 
@@ -237,7 +240,7 @@ reloading, masking and the [File Proxy Database](#file-proxy-database). It is a 
 against the standard JDK library only therefore it comes with no extra transitive dependencies.
 - `flona-driver-ext-final`**(Optional)**: Provides some useful extensions to the driver like connection pooling and an 
 alternative polling file watcher to the built-in one that is provided by the standard Flona driver, it is based on 
-Apache [commons-io](https://commons.apache.org/proper/commons-io), these polling file watchers can be used in situations 
+[Apache commons-io](https://commons.apache.org/proper/commons-io), these polling file watchers can be used in situations 
 where the WatchService based watcher does not work e.g. in containerized environments. When this dependency is present 
 on the classpath, Flona automatically defaults to the common-io based file watcher when the polling watcher is enabled. 
 For more details on toggling between polling and using the WatchService please see [Dynamic Configuration](#dynamic-configuration). 
@@ -254,7 +257,7 @@ Because the code is written against third some party libraries, it comes with ex
 
 ### Driver Setup
 Create a new properties file with the contents below, in our example we will name it `flona-driver.properties`
-`FLONA_DRIVER_CFG_LOCATION`, below is an example of the contents of the driver config file.
+`FLONA_DRIVER_CFG_PATH`, below is an example of the contents of the driver config file.
 ```properties
 # Specifies the name of the proxy database provider to use, 
 # possible values are file and remote, defaults to file.
@@ -281,15 +284,15 @@ application we installed earlier. Carefully read the inline comments above each 
 properties.
 
 The path to the created driver configuration file above is passed to the client application via an environment 
-variable or a JVM system property named `FLONA_DRIVER_CFG_LOCATION`.
+variable or a JVM system property named `FLONA_DRIVER_CFG_PATH`.
 
 > [!TIP]
-> You could possibly host the above configuration file on shared volume among nodes of a clustered application.
+> You could possibly host the above configuration file on a shared volume among nodes of a clustered application.
 
 ### Obtaining A Connection
 Make sure you have done the following below,
 - Added to your application's classpath the Flona.
-- Configured the location of the [Driver Configuration](#driver-configuration) file.
+- Configured the path to the [Driver Configuration](#driver-configuration) file.
 
 #### Using DriverManager
 ```java
@@ -373,8 +376,8 @@ the contents of the instance definition file.
 - [Configure the client application](#client-setup) by setting the value of the `db.provider` property to
 `file` in the [Driver Configuration](#driver-configuration). Alternatively, you can comment out this property since 
 `file` is the default value.
-- You also need to tell the Flona driver the location of database instance definition file, this is done by setting the 
-path to the file as the value of an environment variable or a JVM system property named `FLONA_FILE_DB_CFG_LOCATION`.
+- You also need to tell the Flona driver the path to the database instance definition file, this is done by setting the 
+path to the file as the value of an environment variable or a JVM system property named `FLONA_FILE_DB_CFG_PATH`.
 
 > [!NOTE]
 > The File Proxy Database supports dynamic reloading of the database instance definition file, to enable this see 
@@ -498,19 +501,19 @@ user-facing application.
 The Flona Server is TCP/IP server embedded inside a Spring Boot application, so any applicable Spring Boot [application property](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties)
 can set used. The table below documents all the custom driver properties the server application exposes.
 
-| Name | Description                                                                                                                                                                                      | Required | Default Value |
-|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
-|flona.security.clients.file.path| The path to the file containing the client account configurations.                                                                                                                               |   Yes    |               |
-|flona.server.port| The port the server should listen on for incoming client requests.                                                                                                                               |    No    |     8825      |
-|flona.server.thread.count| The number of threads the server should use to concurrently process client requests, defaults to twice the processors available to the JVM.                                                   |    No    |      16       |
-|flona.network.backlog.max.size| Sets the TCP backlog size for the server.                                                                                                                                                        |    No    |      128      |
-|flona.network.allowed.ip.list| Comma separated list of the client IP addresses and subnets to accept e.g. `100.63.89.1, 99.63.144.0/21`, leave blank to allow all.                                                              |    No    |               |
+| Name | Description                                                                                                                                                                                       | Required | Default Value |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|flona.security.clients.file.path| The path to the file containing the client account configurations.                                                                                                                                |   Yes    |               |
+|flona.server.port| The port the server should listen on for incoming client requests.                                                                                                                                |    No    |     8825      |
+|flona.server.thread.count| The number of threads the server should use to concurrently process client requests, defaults to twice the processors available to the JVM.                                                       |    No    |      16       |
+|flona.network.backlog.max.size| Sets the TCP backlog size for the server, defaults to 128.                                                                                                                                        |    No    |      128      |
+|flona.network.allowed.ip.list| Comma separated list of the client IP addresses and subnets to accept e.g. `100.63.89.1, 99.63.144.0/21`, leave blank to allow all.                                                               |    No    |               |
 |flona.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL. |    No    |     false     |
-|flona.ssl.keystore.file.path| The path to the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                    |    No    |               |
-|flona.ssl.keystore.password| The password for the keystore containing the server certificate, **required** when SSL is enabled.                                                                                               |    No    |               |
-|flona.ssl.keystore.type| The type of the keystore containing the server certificate.                                                                                                                                      |    No    |               |
-|flona.ssl.keystore.algorithm| Specifies the name of key manager factory algorithm.                                                                                                                                             |    No    |               |
-|flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                       |    No    |               |
+|flona.ssl.keystore.file.path| The path to the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                     |    No    |               |
+|flona.ssl.keystore.password| The password for the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                |    No    |               |
+|flona.ssl.keystore.type| The type of the keystore containing the server certificate.                                                                                                                                       |    No    |               |
+|flona.ssl.keystore.algorithm| Specifies the name of key manager factory algorithm.                                                                                                                                              |    No    |               |
+|flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                        |    No    |               |
 
 ## Remote Proxy Database Configuration
 The [Remote Proxy Database](#remote-proxy-database) uses a client-server architecture, it means the client application 
@@ -535,7 +538,7 @@ documents all the extra driver properties the remote proxy exposes.
 
 ## File Proxy Database Configuration
 The [File Proxy Database](#file-proxy-database) reads the database instance definitions from a file, the path to this 
-file can be specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_LOCATION`.
+file can be specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_PATH`.
 
 The table below documents all the properties that can be defined in a database instance definition file where 
 `TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target database 
@@ -555,7 +558,7 @@ wish to set.
 
 ## Driver Configuration
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
-`FLONA_DRIVER_CFG_LOCATION`.
+`FLONA_DRIVER_CFG_PATH`.
 
 **Note:** Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must
 be replaced with the full column name, implying the values for those properties only apply to a single column mask 
@@ -586,8 +589,8 @@ Because the server component for the remote proxy internally uses a file proxy d
 server is configured via its internal driver configuration file and database instance specific configurations are based 
 on the target database instances defined its embedded file proxy database.
 
-Pooling properties 
-can be defined globally for all database instance and can be overridden one by one for a specific target database instance using the formats below
+Pooling properties can be defined globally for all database instances and can also be overridden one by one for a 
+specific instance, use the formats below to achieve the desired behavior.
 - `pooling.PROVIDER_NAME.PROPERTY_NAME` are provider specific where `PROVIDER_NAME` is a placeholder for 
 the pooling provider name and `PROPERTY_NAME` is the provider specific pooling property name. For example, if you wish 
 to set the maximum pool size, for HikariCP the full property name would be `pooling.hikari.maximumPoolSize` and for c3p0 

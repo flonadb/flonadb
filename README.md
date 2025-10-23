@@ -9,18 +9,18 @@
       1. [Manual (With Example)](#manual)
       2. [With Docker (Coming Soon)](#with-docker)
    2. [Client Setup](#client-setup)
-5. [Proxy Database Implementations](#proxy-database-implementations)
-   1. [Proxy Overview](#proxy-database-overview)
-   2. [Remote](#remote-proxy-database)
-   3. [File](#file-proxy-database)
+5. [Proxy Implementations](#proxy-implementations)
+   1. [Proxy Overview](#proxy-overview)
+   2. [Remote](#remote-proxy)
+   3. [File](#file-proxy)
 6. [Features](#features)
    1. [Connection Pooling](#connection-pooling)
    2. [Dynamic Configuration](#dynamic-configuration)
    3. [Data Masking](#data-masking)
 7. [Configuration](#configuration)
    1. [Server](#server-configuration)
-   2. [Remote Proxy Database](#remote-proxy-database-configuration)
-   3. [File Proxy Database](#file-proxy-database-configuration)
+   2. [Remote Proxy](#remote-proxy-configuration)
+   3. [File Proxy](#file-proxy-configuration)
    4. [Driver](#driver-configuration)
    5. [Connection Pooling](#connection-pooling-configuration)
 8. [Unsupported JDBC Methods]()
@@ -42,7 +42,7 @@ It also differs from other database proxies because it comes in 2 flavors i.e. i
 application that acts as a reverse proxy and the client application communicates with the remote server over a network 
 with SSL. Alternatively, it can be used as a client side 'forward' proxy running inside the same JVM as the client 
 applications implying no extra application needs to be deployed. It provides features that are both developer and DevOps 
-focused. In forward proxy mode, currently only a File Proxy Database is available i.e. the database connection 
+focused. In forward proxy mode, currently only a File Proxy is available i.e. the database connection 
 information is managed and read fom a file, this file could be located on a shared volume if you wish. In future 
 versions we intend to add other implementations that are managed and read connection information from a database, 
 environment variables, secret key manager etc.
@@ -107,7 +107,7 @@ application is a standard Spring Boot executable jar that processes database req
 back the responses.
 
 It's worthy noting that the server internally uses Flona again in a 'forward' proxy mode to process client requests 
-against a target database instance via an internal [File Proxy Database](#file-proxy-database) setup.
+against a target database instance via an internal [File Proxy](#file-proxy) setup.
 
 > [!IMPORTANT]
 > It is strongly recommended that the communication between the client the server is done over a secured connection by 
@@ -131,7 +131,7 @@ Please use this [server example](examples/server) as a guide.
    go over the role of each file while explaining the contents.
 4. `db.properties` contains the information that tells the server how to connect to the actual database instances, we're 
    actually configuring the server to internally use one of its own features i.e. a 
-   [File Proxy Database](#file-proxy-database), the example file contains the properties below.
+   [File Proxy](#file-proxy), the example file contains the properties below.
     ```properties
     # Logical name to identify the available database instances
     db.instances=mysql-prod
@@ -151,7 +151,7 @@ Please use this [server example](examples/server) as a guide.
    multiple data sources in a Spring Boot application, an application server like Jboss or a servlet container like 
    Tomcat, but in all these cases the data source information is generally not dynamically reloadable at runtime but 
    Flona supports this feature without requiring a client application or Flona server restart. For more details, please 
-   refer to [File Proxy Database](#file-proxy-database) documentation.
+   refer to [File Proxy](#file-proxy) documentation.
 5. `clients.properties` contains the client account information, including how they get authenticated and authorized, 
    the example file contains the properties below.
     ```properties
@@ -194,7 +194,7 @@ Please use this [server example](examples/server) as a guide.
    This is just a way to run a Spring boot application, we export an environment variable `LOADER_PATH` with a value of 
    `drivers` which is the path to directory we saw earlier where to load extra jars which in our case will be the JDBC 
    drivers for the target database systems. We also define another environment variable `FLONA_FILE_DB_CFG_PATH` 
-   with a value of `db.properties` which is the path to the `File Proxy Database` file we looked at in **Step 4**.
+   with a value of `db.properties` which is the path to the `File Proxy` file we looked at in **Step 4**.
 
    **Note** Remember to replace `flona-server-1.2.0.jar` with the actual name of the server jar file you downloaded in 
    **Step 2**.
@@ -236,7 +236,7 @@ Add the dependencies below to your pom file for the driver.
 **Note** that you don't always need the last 2 dependencies, below is the explanation of the purpose of each dependency, 
 which should guide you to make the correct decision when selecting which ones you need.
 - `flona-driver-final`**(Required)**: Provides the basic Flona features i.e. JDBC driver, FlonaDataSource, dynamic 
-reloading, masking and the [File Proxy Database](#file-proxy-database). It is a simple jar and the code is written 
+reloading, masking and the [File Proxy](#file-proxy). It is a simple jar and the code is written 
 against the standard JDK library only therefore it comes with no extra transitive dependencies.
 - `flona-driver-ext-final`**(Optional)**: Provides some useful extensions to the driver like connection pooling and an 
 alternative polling file watcher to the built-in one that is provided by the standard Flona driver, it is based on 
@@ -245,7 +245,7 @@ where the WatchService based watcher does not work e.g. in containerized environ
 on the classpath, Flona automatically defaults to the common-io based file watcher when the polling watcher is enabled. 
 For more details on toggling between polling and using the WatchService please see [Dynamic Configuration](#dynamic-configuration). 
 Because the code is written against third some party libraries, it comes with extra transitive dependencies.
-- `flona-db-ext-final`**(Optional)**: Provides the [Remote Proxy Database](#remote-proxy-database). 
+- `flona-db-ext-final`**(Optional)**: Provides the [Remote Proxy](#remote-proxy). 
 
 ### Requirements 
 - Java 17.
@@ -253,13 +253,13 @@ Because the code is written against third some party libraries, it comes with ex
 
 > [!NOTE]
 > No JDBC drivers for the target database systems are required when using Flona in a reverse proxy mode i.e. with a 
-> [Remote Proxy Database](#remote-proxy-database).
+> [Remote Proxy](#remote-proxy).
 
 ### Driver Setup
 Create a new properties file with the contents below, in our example we will name it `flona-driver.properties`
 `FLONA_DRIVER_CFG_PATH`, below is an example of the contents of the driver config file.
 ```properties
-# Specifies the name of the proxy database provider to use, 
+# Specifies the name of the database proxy provider to use, 
 # possible values are file and remote, defaults to file.
 db.provider=remote
 
@@ -280,7 +280,7 @@ proxy.remote.client.secret=secret-one
 ```
 From the example above, we have configured the client component of the Flona JDBC driver to connect to the server 
 application we installed earlier. Carefully read the inline comments above each property. Please refer to the 
-[Remote Proxy Database Configuration](#remote-proxy-database-configuration) section for the detailed list of supported 
+[Remote Proxy Configuration](#remote-proxy-configuration) section for the detailed list of supported 
 properties.
 
 The path to the created driver configuration file above is passed to the client application via an environment 
@@ -298,8 +298,8 @@ Make sure you have done the following below,
 ```java
 Connection c = DriverManager.getConnection("jdbc:flona://mysql-prod"); 
 ```
-The URL above is used to connect to a database instance named `mysql-prod` defined in the proxy database config file we 
-created.
+The URL above is used to connect to a database instance named `mysql-prod` defined in the database instance 
+configuration file we created.
 
 #### Using FlonaDataSource
 Flona driver also provides `com.amiyul.flona.driver FlonaDataSource` which is a JDBC `DataSource` implementation and 
@@ -310,9 +310,9 @@ ds.setDatabaseInstance("mysql-prod");
 Connection c = ds.getConnection();
 
 ```
-# Proxy Database Implementations
-## Proxy Database Overview
-Flona proxy database implementations are simple but powerful abstractions of a database proxy, depending on the
+# Proxy Implementations
+## Proxy Overview
+Flona proxy implementations are simple but powerful abstractions of a database proxy, depending on the
 implementation, the proxy mechanism can be run 100% within the client application or partially with the other component
 running on a remote server. The proxy knows about available database instances and the necessary information needed to 
 connect to each of them.
@@ -322,10 +322,10 @@ you could store the file on a shared drive that is accessed by all applications 
 typically apply to distributed or clustered systems with multiple nodes to centralize the management of the database 
 credentials used by all the nodes.
 
-As of version 1.2.0, there is only 2 proxy implementations i.e. [Remote Proxy Database](#remote-proxy-database) and 
-[File Proxy Database](#file-proxy-database), more implementations will be added in future versions.
-## Remote Proxy Database
-This is a Type 3 JDBC driver implementation of proxy database, the driver comes in form of 2 components, a client JDBC 
+As of version 1.2.0, there is only 2 proxy implementations i.e. [Remote Proxy](#remote-proxy) and 
+[File Proxy](#file-proxy), more implementations will be added in future versions.
+## Remote Proxy
+This is a Type 3 JDBC driver implementation of database proxy, the driver comes in form of 2 components, a client JDBC 
 driver component which communicates with the server component over a network to process database calls made by the 
 client application. The server component is a TCP/IP server embedded inside a Spring Boot application. The database 
 instance definitions are maintained on the Flona server and clients only need to know how to connect to the server and 
@@ -334,12 +334,12 @@ pass to it the logical names of the database instances they want to connect to a
 **Note** No JDBC drivers have to be added to the classpath of the client application with this proxy, they are only 
 added to the server.
 
-To use a remote proxy database, you need to do the following,
+To use a remote database proxy, you need to do the following,
 - [Install the Flona server](#server-installation).
 - [Configure the client application](#client-setup) by setting the value of the `db.provider` property to `remote` in 
 the [Driver Configuration](#driver-configuration)
 
-Remote proxy database requires adding the Flona database extensions dependency below to your classpath,
+Remote proxy requires adding the Flona database extensions dependency below to your classpath,
 ```xml
 <dependency>
     <groupId>com.amiyul.flona</groupId>
@@ -347,13 +347,13 @@ Remote proxy database requires adding the Flona database extensions dependency b
     <version>1.2.0</version>
 </dependency>
 ```
-## File Proxy Database
-This is a proxy database implementation that reads the database instance definitions from a file, it is 100% client side 
+## File Proxy
+This is a proxy implementation that reads the database instance definitions from a file, it is 100% client side 
 and runs inside the same JVM as the client application, it requires adding the required JDBC drivers to the classpath of 
 the client application. This is a good option that you can use to quickly add Flona to your project and evaluate some 
 of the common features like masking, pooling, dynamic reloading of configurations.
 
-To use a file proxy database, you need to do the following,
+To use a file proxy, you need to do the following,
 - Create a database instance definition file that defines the database instance logical names and any necessary 
 information required to connection each of them i.e. the connection URL, username and password. Below is an example of 
 the contents of the instance definition file.
@@ -371,7 +371,7 @@ the contents of the instance definition file.
     The `databases` property takes a comma-separated list of the unique names of the database instances, then we define 
     connection properties for each database instance, the properties for each instance must be prefixed with the 
     name that was defined in the value of the `databases` property as seen in the example above, please refer to the 
-    [File Proxy Database Configuration](#file-proxy-database-configuration) section for the complete list and 
+    [File Proxy Configuration](#file-proxy-configuration) section for the complete list and 
     documentation of each property.
 - [Configure the client application](#client-setup) by setting the value of the `db.provider` property to
 `file` in the [Driver Configuration](#driver-configuration). Alternatively, you can comment out this property since 
@@ -380,8 +380,8 @@ the contents of the instance definition file.
 path to the file as the value of an environment variable or a JVM system property named `FLONA_FILE_DB_CFG_PATH`.
 
 > [!NOTE]
-> The File Proxy Database supports dynamic reloading of the database instance definition file, to enable this see 
-> [File Proxy Database Configuration](#file-proxy-database-configuration) 
+> The File Proxy supports dynamic reloading of the database instance definition file, to enable this see 
+> [File Proxy Configuration](#file-proxy-configuration) 
 
 # Features
 ## Connection Pooling
@@ -390,7 +390,7 @@ should use to improve performance. Flona provides built-in connection pooling wh
 in case you're adding Flona to your existing client application with pooling already in use, you don't have to enable 
 it.
 
-When using the [Remote Proxy Database](#remote-proxy-database), it is **strongly** recommended to enable pooling on the 
+When using the [Remote Proxy](#remote-proxy), it is **strongly** recommended to enable pooling on the 
 Flona server because it greatly improves the performance of both the server and the client applications. Another benefit 
 is that the server can serve multiple clients with few connections than they would all require in total to perform 
 optimally. Imagine a database accessed by 10 different applications and each application has a connection pool 
@@ -416,11 +416,11 @@ Connection pooling requires adding the Flona driver extensions dependency below 
 ```
 ## Dynamic Configuration
 Flona supports dynamic reloading of some configuration files at runtime i.e. you can modify the file contents and the 
-changes are picked up without the need to restart the client applications or the server component when using the remote 
-proxy database hence no downtime for your applications. The configurations that support this feature are 
-[Driver Configuration](#driver-configuration) and [File Proxy Database Configuration](#file-proxy-database-configuration).
+changes are picked up without the need to restart the client applications or the server component when using the remote
+database proxy hence no downtime for your applications. The configurations that support this feature are 
+[Driver Configuration](#driver-configuration) and [File Proxy Configuration](#file-proxy-configuration).
 It implies when database passwords are rotated, you can update them in the database instance definition file for the 
-file proxy database without an application restart, and they get picked up. **Note** that it can take up to 5 seconds
+file proxy without an application restart, and they get picked up. **Note** that it can take up to 5 seconds
 before the changes are applied.
 
 Imagine you had a high availability application that runs a batch job every 2 hours, the job is the only component that
@@ -515,8 +515,8 @@ can set used. The table below documents all the custom driver properties the ser
 |flona.ssl.keystore.algorithm| Specifies the name of key manager factory algorithm.                                                                                                                                              |    No    |               |
 |flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                        |    No    |               |
 
-## Remote Proxy Database Configuration
-The [Remote Proxy Database](#remote-proxy-database) uses a client-server architecture, it means the client application 
+## Remote Proxy Configuration
+The [Remote Proxy](#remote-proxy) uses a client-server architecture, it means the client application 
 only needs to know how to connect to the Flona server and the logical names of the database instances to use, the client 
 does not need to know the details of how to connect to the targets themselves. The required details of how the client 
 connects to the server are directly defined in the [Driver Configuration](#driver-configuration) file, the table below 
@@ -534,10 +534,10 @@ documents all the extra driver properties the remote proxy exposes.
 |proxy.remote.ssl.truststore.type| The type of the certificate trust store.                                                                                                                                                                                                              |    No    |               |
 |proxy.remote.ssl.truststore.algorithm| Specifies the name of trust manager factory algorithm.                                                                                                                                                                                                |    No    |               |
 |proxy.remote.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`. These must be among those supported by the server.                                                                                                                         |    No    |               |
-|proxy.remote.bounded.requests.no-op| Currently, the remote proxy database does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException`. |    No    |     false     |
+|proxy.remote.bounded.requests.no-op| Currently, the remote database proxy does not support calls to `Connection.beginRequest()` and `Connection.endRequest()`, when set to true Flona will silently ignore the calls otherwise to will throw a `java.sql.SQLFeatureNotSupportedException`. |    No    |     false     |
 
-## File Proxy Database Configuration
-The [File Proxy Database](#file-proxy-database) reads the database instance definitions from a file, the path to this 
+## File Proxy Configuration
+The [File Proxy](#file-proxy) reads the database instance definitions from a file, the path to this 
 file can be specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_PATH`.
 
 The table below documents all the properties that can be defined in a database instance definition file where 
@@ -572,7 +572,7 @@ definition. To understand what a full column name means, please refer to the [Da
 |mask.FULL_COLUMN_NAME.number| Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.                                                                                                                                                                                                                            |No||
 |mask.FULL_COLUMN_NAME.regex| Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.                                                                                                                                                                                                                              |No||
 |mask.FULL_COLUMN_NAME.indices| Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.                                                                                                                                                                                                                   |No||
-|lazy.connections.enabled| (**ONLY supported by** [Remote Proxy Database](#remote-proxy-database)) When set to true, obtaining of a physical connection to the Flona server is deferred until the first call that requires a trip to the server is made, **this feature is still maturing**, defaults to false.                                                                                                             |No|false|
+|lazy.connections.enabled| (**ONLY supported by** [Remote Proxy](#remote-proxy)) When set to true, obtaining of a physical connection to the Flona server is deferred until the first call that requires a trip to the server is made, **this feature is still maturing**, defaults to false.                                                                                                             |No|false|
 
 ## Connection Pooling Configuration
 Flona comes with built-in connection pooling support with 2 possible providers you can select from i.e. 
@@ -585,9 +585,9 @@ the pooling provider is inferred from any of the configured pooling properties t
 config contains a property named `pooling.c3p0.maxPoolSize`, then the c3p0 provider is auto selected. You **cannot** add 
 properties for both providers in the same config file otherwise it will be rejected.
 
-Because the server component for the remote proxy internally uses a file proxy database, it implies pooling in the Flona 
+Because the server component for the remote proxy internally uses a file proxy, it implies pooling in the Flona 
 server is configured via its internal driver configuration file and database instance specific configurations are based 
-on the target database instances defined its embedded file proxy database.
+on the target database instances defined its embedded file proxy.
 
 Pooling properties can be defined globally for all database instances and can also be overridden one by one for a 
 specific instance, use the formats below to achieve the desired behavior.

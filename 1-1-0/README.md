@@ -17,7 +17,6 @@
 7. [Technical Support](#technical-support)
 8. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 9. [Discussions And Announcements](#discussions-and-announcements)
-10. [End-User License Agreement](#end-user-license-agreement)
 
 ## Overview
 FlonaDB is an abstraction of a database proxy that allows your application to loosely connect to target databases using 
@@ -40,8 +39,6 @@ monitoring, query timing and logging etc.
 Note: Currently, only a JDBC driver is available for FlonaDB. It can be used by any application written with any of 
 languages in the Java family. Python users can also use it alongside [this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). 
 We will be working on drivers for other languages in the future.
-
-**FlonaDB is available for use for free.**
 
 ## Features Overview
 Note that all the features below are independent of the target database management system.
@@ -299,6 +296,3 @@ Please see [here](https://github.com/flonadb/flonadb/issues)
 
 ## Discussions And Announcements
 Please see [here](https://github.com/flonadb/flonadb/discussions)
-
-## End-User License Agreement
-See [End-User License Agreement](https://amiyul.com/flonadb-eula)

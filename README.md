@@ -27,16 +27,15 @@
 9. [Technical Support](#technical-support)
 10. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 11. [Discussions And Announcements](#discussions-and-announcements)
-12. [End-User License Agreement](#end-user-license-agreement)
-13. [Documentation For Older Versions](#documentation-for-older-versions)
+12. [Documentation For Older Versions](#documentation-for-older-versions)
     1. [1.1.0](1-1-0/README.md)
     2. [1.0.0](1-0-0/README.md)
 
 # Overview
-Flona is a free abstraction of a database proxy that allows your application to loosely connect to target database 
-instances using unique logical names or keys. It differs from a traditional database because it can't be used alone 
-without a traditional target database instance. In fact, you can have multiple applications connect to multiple database 
-instances using a single centralized configuration and setup.
+Flona is an abstraction of a database proxy that allows your application to loosely connect to target database instances 
+using unique logical names or keys. It differs from a traditional database because it can't be used alone without a 
+traditional target database instance. In fact, you can have multiple applications connect to multiple database instances 
+using a single centralized configuration and setup.
 
 It also differs from other database proxies because it comes in 2 flavors i.e. it can be deployed with a server side 
 application that acts as a reverse proxy and the client application communicates with the remote server over a network 
@@ -69,8 +68,6 @@ Note: Currently, only a JDBC driver is available for Flona. It can be used by an
 languages in the Java family. Python users can also use it via 
 [this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). We will be working on drivers for other languages in 
 the future.
-
-**Flona is available for use for free.**
 
 # Features Overview
 The features provided by Flona are not new by any stretch, many of them are generally provided by existing technologies 
@@ -618,9 +615,6 @@ Please see [here](https://github.com/flonadb/flonadb/issues)
 
 # Discussions And Announcements
 Please see [here](https://github.com/flonadb/flonadb/discussions)
-
-# End-User License Agreement
-See [End-User License Agreement](https://amiyul.com/flonadb-eula)
 
 # Documentation For Older Versions
 - [1.1.0](1-1-0/README.md)

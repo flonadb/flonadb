@@ -190,10 +190,10 @@ name that was defined in the value of the `databases` property as seen in the ex
 ## Features
 ### Data Masking
 Different database systems provide functions that can be used in queries to mask values in a result set but these 
-functions are database specific and used in individual queries.
+functions are database specific and, they are used in individual queries.
 
 FlonaDB provides a database independent masking feature at the application level which allows developers to externally 
-configure column whose values should be masked in result sets, the masking rules are applied to all applicable result 
+configure columns whose values should be masked in result sets, the masking rules are applied to all applicable result 
 set values. Currently, the masking is only applicable to columns of data types that map to Java strings.
 
 #### String Mask Modes
@@ -207,7 +207,7 @@ also the generated mask won't exceed the database column length. Below are the s
 2. **Tail**: A specific number of characters in the string are masked counting from the tail. If no number to mask is 
    specified, by default all the characters are masked except the first.
 3. **Regex**: Masking is performed by applying a regex to the original value to mask specific characters.
-4. **Indices**: A list of indices is provided for the characters to mask.
+4. **Indices**: A list of indices is provided for the characters to mask in the string.
 
 #### Mask Configuration
 Mask configurations are defined in the driver config file mentioned in the Quick Start section, below is a mask 
@@ -223,16 +223,16 @@ mask.sales.person.birthdate.regex=[A-Za-z]
 mask.marketing.person.ssn.mode=indices
 mask.marketing.person.ssn.indices=0,1,2,4,5
 ```
-In the above example, we have used the `mask.columns` property to configured 3 column whose values should be masked, the 
+In the above example, we have used the `mask.columns` property to configured 3 columns whose values should be masked, the 
 value is a comma separated list of full column names i.e. including owning table, schema and/or catalog, note that 
 schema and catalog are implemented differently by different database vendors so be sure that you define them based on 
-the target database system, a period is used to separate the components of full column name i.e. column, table, schema 
+the target database system, a period is used to separate the components of a full column name i.e. column, table, schema 
 and catalog name. The first definition is for the `name` column in the `location` table in the `sales` schema in the 
 `prod` catalog, the second definition is for the `birthdate` column in the `person` table in the `sales` schema or 
 catalog, and the third definition is for the `ssn` column in the `person` table in the `marketing` schema or catalog.
 
 Please pay attention to the naming of the other set of properties, they are used to configure the masking rules for each 
-column, each of them is prefixed with `mask`. and the same full column name as that used in the `mask.columns` property 
+column, each of them is prefixed with `mask`, and the same full column name as that used in the `mask.columns` property 
 value.
 
 With the above mask configuration when your application executes a query that returns a result set containing values 

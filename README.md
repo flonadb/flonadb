@@ -343,9 +343,10 @@ Remote proxy requires adding the Flona database extensions dependency below to y
 ```
 ## File Proxy
 This is a proxy implementation that reads the database instance definitions from a file, it is 100% client side 
-and runs inside the same JVM as the client application, it requires adding the required JDBC drivers to the classpath of 
-the client application. This is a good option that you can use to quickly add Flona to your project and evaluate some 
-of the common features like masking, pooling, dynamic reloading of configurations.
+and runs inside the same JVM as the client application. All the proxying mechanism is implemented in the JDBC driver, 
+it requires adding the required JDBC drivers for the target database instances to the classpath of the client 
+application. This is a good option that you can use to quickly add Flona to your project and evaluate some of the common 
+features like masking, pooling, dynamic reloading of configurations.
 
 To use a file proxy, you need to do the following,
 - Create a database instance definition file that declares the database instance logical names and any necessary 

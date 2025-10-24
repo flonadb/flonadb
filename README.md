@@ -393,8 +393,8 @@ configured to maintain a minimum and maximum count of 50 of both idle and active
 open connections on the server which may not all be actively in use at all times, causing redundancy, most pooling 
 technologies provide configuration options to try and mitigate this scenario but let's just take this as an example for 
 demonstration purposes. When using the Flona remote proxy, the admin can choose to centrally optimize the connection 
-count from 500 by setting a smaller pool size window e.g. 50 for minimum and 100 for maximum if they deem it to be 
-sufficient, this effectively makes 100 the global maximum connection count across all applications which would free up 
+count from 500 by setting a smaller pool size window e.g. 1 for minimum and 5 for maximum if they deem it to be 
+sufficient, this effectively makes 5 the global maximum connection count across all applications which would free up 
 extra server resources for other tasks.
 
 Flona comes with support for 2 pooling providers you can select from i.e. [HikariCP](https://github.com/brettwooldridge/HikariCP) 

@@ -122,7 +122,7 @@ against a target database instance via an internal [File Proxy](#file-proxy) set
 Please use this [server example](examples/server) as a guide.
 #### Steps
 1. Create an installation directory for your server application.
-2. [Download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-server&v=1.2.0&e=jar)
+2. [Download](https://repo1.maven.org/maven2/com/amiyul/flona/flona-server/1.2.0/flona-server-1.2.0.jar)
    the server jar file and copy it to the installation directory.
 3. Copy the contents of [server example](examples/server) to your installation directory and in the next steps we will 
    go over the role of each file while explaining the contents.
@@ -206,7 +206,7 @@ for how you can change the log configuration.
 ### Getting Flona Driver
 #### Download
 
-You can [download](https://s01.oss.sonatype.org/service/local/artifact/maven/redirect?r=releases&g=com.amiyul.flona&a=flona-driver-single&v=1.2.0&e=jar) 
+You can [download](https://repo1.maven.org/maven2/com/amiyul/flona/flona-driver-single/1.2.0/flona-driver-single-1.2.0.jar) 
 the single jar file using the download button below and add it to your application's classpath.
 
 #### Maven

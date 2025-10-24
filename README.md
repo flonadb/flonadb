@@ -161,7 +161,7 @@ We will use [server example](examples/server) as a guide.
     ```
    We define a single client account, the client is assigned id `client-one`, a secret `secret-one` and granted access 
    to a single database instance logically identified as `mysql-prod`. In later steps, we will see how the server is 
-   configured to locate this file. In the [client setup](#client-setup), we will also see how the clients are configured 
+   configured to locate this file. In the [Client Setup](#client-setup), we will also see how the clients are configured 
    to use the client id and secret to authenticate with the server.
 6. `application.properties` is a standard Spring Boot [application properties](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/#appendix.application-properties) 
    file, the example file contains the properties below.

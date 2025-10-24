@@ -62,7 +62,7 @@ department, or an entire organization.
 
 Note: Currently, only a JDBC driver is available for Flona. It can be used by any application written with any of 
 languages in the Java family. Python users can also use it via 
-[this python JDBC adaptor](https://pypi.org/project/JayDeBeApi). We will be working on drivers for other languages in 
+[this python JDBC adapter](https://pypi.org/project/JayDeBeApi). We will be working on drivers for other languages in 
 the future.
 
 # Features Overview

@@ -23,7 +23,7 @@
    3. [File Proxy](#file-proxy-configuration)
    4. [Driver](#driver-configuration)
    5. [Connection Pooling](#connection-pooling-configuration)
-8. [Unsupported JDBC Methods]()
+8. [Unsupported JDBC Methods](#unsupported-jdbc-methods)
 9. [Technical Support](#technical-support)
 10. [Request A New Feature Or File A Bug](#request-a-new-feature-or-file-a-bug)
 11. [Discussions And Announcements](#discussions-and-announcements)
@@ -499,8 +499,8 @@ can be used. The table below documents all the custom driver properties the serv
 |------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
 |flona.security.clients.file.path| The path to the file containing the client account configurations.                                                                                                                                |   Yes    |               |
 |flona.server.port| The port the server should listen on for incoming client requests.                                                                                                                                |    No    |     8825      |
-|flona.server.thread.count| The number of threads the server should use to concurrently process client requests, defaults to twice the processors available to the JVM.                                                       |    No    |      16       |
-|flona.network.backlog.max.size| Sets the TCP backlog size for the server, defaults to 128.                                                                                                                                        |    No    |      128      |
+|flona.server.thread.count| The number of threads the server should use to concurrently process client requests, defaults to twice the processors available to the JVM.                                                       |    No    ||
+|flona.network.backlog.max.size| Sets the TCP backlog size for the server.                                                                                                                                        |    No    |      128      |
 |flona.network.allowed.ip.list| Comma separated list of the client IP addresses and subnets to accept e.g. `100.63.89.1, 99.63.144.0/21`, leave blank to allow all.                                                               |    No    |               |
 |flona.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL. |    No    |     false     |
 |flona.ssl.keystore.file.path| The path to the keystore containing the server certificate, **required** when SSL is enabled.                                                                                                     |    No    |               |
@@ -510,10 +510,10 @@ can be used. The table below documents all the custom driver properties the serv
 |flona.ssl.supported.versions| Comma separated list of the supported SSL versions e.g. `TLSv1.2,TLSv1.3`.                                                                                                                        |    No    |               |
 
 ## Remote Proxy Configuration
-The [Remote Proxy](#remote-proxy) uses a client-server architecture, it means the client application 
-only needs to know how to connect to the Flona server and the logical names of the database instances to use, the client 
-does not need to know the details of how to connect to the targets themselves. The required details of how the client 
-connects to the server are directly defined in the [Driver Configuration](#driver-configuration) file, the table below 
+The [Remote Proxy](#remote-proxy) uses a client-server architecture, it means the client application only needs to know 
+how to connect to the Flona server and the logical names of the database instances to connect to, the client does not 
+need to know the connection details to the database instances themselves. The required details of how the client 
+connects to the server are defined in the embedded [Driver Configuration](#driver-configuration) file, the table below 
 documents all the extra driver properties the remote proxy exposes.
 
 | Name | Description                                                                                                                                                                                                                                           | Required | Default Value |
@@ -522,7 +522,7 @@ documents all the extra driver properties the remote proxy exposes.
 |proxy.remote.server.port| The port number to use to connect to the Flona server application.                                                                                                                                                                                    |    No    |     8825      |
 |proxy.remote.client.id| The client id to use for authentication.                                                                                                                                                                                                              |   Yes    |               |
 |proxy.remote.client.secret| The client secret to use for authentication.                                                                                                                                                                                                          |   Yes    |               |
-|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled, defaults to false. It is **strongly** discouraged to disable SSL.                                                     |    No    |     false     |
+|proxy.remote.ssl.disabled| Toggles the use of SSL for connections between the client and the server, a value of true disables SSL otherwise it is enabled. It is **strongly** discouraged to disable SSL in production.                                                          |    No    |     false     |
 |proxy.remote.ssl.truststore.file.path| The path to the certificate trust store to use, **required** when SSL is enabled.                                                                                                                                                                     |    No    |               |
 |proxy.remote.ssl.truststore.password| The password for the certificate trust store, **required** when SSL is enabled.                                                                                                                                                                       |    No    |               |
 |proxy.remote.ssl.truststore.type| The type of the certificate trust store.                                                                                                                                                                                                              |    No    |               |
@@ -535,53 +535,53 @@ The [File Proxy](#file-proxy) reads the database instance definitions from a fil
 file can be specified via an environment variable or a JVM system property named`FLONA_FILE_DB_CFG_PATH`.
 
 The table below documents all the properties that can be defined in a database instance definition file where 
-`TARGET_DB_NAME` is a placeholder where it exists in a property name and must be replaced with the target database 
-instance name, implying the values for those properties only apply to a single instance.
+`TARGET_DB_NAME` is a placeholder, it must be replaced with the target database instance name, it implies that the 
+values for those properties only apply to a single instance.
 
-| Name | Description                                                                 | Required | Default Value |
-|------|-----------------------------------------------------------------------------|:--------:|:-------------:|
-|config.hot.reload.enabled| When set to true, dynamic reloading of the database instance definition file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup. Alternatively, you can use an environment variable or JVM system property named `FLONA_FILE_DB_CFG_HOT_RELOAD_ENABLED`, defaults to false.|No|false|
-|databases| A comma-separated list of the unique names of the database instances. |Yes||
-|TARGET_DB_NAME.url| The URL of the database to which to connect.                                |Yes||
-|TARGET_DB_NAME.properties.user| The user to use to connect to the database.                                 |No||
-|TARGET_DB_NAME.properties.password| The user password to use to connect to the database.                        |No||
+| Name | Description                                                                                                                                                                                                                                                                                                                                                                                   | Required | Default Value |
+|------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|:-------------:|
+|config.hot.reload.enabled| When set to true, dynamic reloading of the database instance definition file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup. Alternatively, you can use an environment variable or JVM system property named `FLONA_FILE_DB_CFG_HOT_RELOAD_ENABLED`. |No|false|
+|db.instances| A comma-separated list of the unique names of the database instances.                                                                                                                                                                                                                                                                                                                         |Yes||
+|TARGET_DB_NAME.url| The connection URL of the database instance named `TARGET_DB_NAME`.                                                                                                                                                                                                                                                                                                                           |Yes||
+|TARGET_DB_NAME.properties.user| The username to use to connect to the database instance named `TARGET_DB_NAME`.                                                                                                                                                                                                                                                                                                                       |No||
+|TARGET_DB_NAME.properties.password| The password to use to connect to the database instance named `TARGET_DB_NAME`.                                                                                                                                                                                                                                                                                                                   |No||
 
-**Note** You can set any other properties accept by the JDBC driver of the target database system by adding a property 
+**Note** You can set any other properties accepted by the JDBC driver of the target database system by adding a property 
 matching the pattern `TARGET_DB_NAME.properties.PROPERTY_NAME` where `PROPERTY_NAME` is the name of the property you 
 wish to set.
 
 ## Driver Configuration
 The path to the driver config file can be specified via an environment variable or a JVM system property named 
-`FLONA_DRIVER_CFG_PATH`.
+`FLONA_DRIVER_CFG_PATH`, the table below lists and documents the supported properties.
 
 **Note:** Property names containing `FULL_COLUMN_NAME` apply to column masking definitions, it is a placeholder and must
 be replaced with the full column name, implying the values for those properties only apply to a single column mask 
 definition. To understand what a full column name means, please refer to the [Data Masking](#data-masking) section.
 
-| Name | Description                                                                                                                                                                                                                                                                                                                                                                                      |  Required  |  Default Value  |
-|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------:|
-|config.hot.reload.enabled| When set to true, dynamic reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup. Alternatively, you can use an environment variable or JVM system property named `FLONA_DRIVER_CFG_HOT_RELOAD_ENABLED`, defaults to false. |No|false|
-|mask.columns| Specifies a comma-separated list of full column names in result sets whose values should be masked.                                                                                                                                                                                                                                                                                              |No||
-|mask.FULL_COLUMN_NAME.mode| Specifies the masking mode to apply to the column matching the full column name.                                                                                                                                                                                                                                                                                                                 |No||
-|mask.FULL_COLUMN_NAME.number| Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.                                                                                                                                                                                                                            |No||
-|mask.FULL_COLUMN_NAME.regex| Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.                                                                                                                                                                                                                              |No||
-|mask.FULL_COLUMN_NAME.indices| Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.                                                                                                                                                                                                                   |No||
-|lazy.connections.enabled| (**ONLY supported by** [Remote Proxy](#remote-proxy)) When set to true, obtaining of a physical connection to the Flona server is deferred until the first call that requires a trip to the server is made, **this feature is still maturing**, defaults to false.                                                                                                             |No|false|
+| Name | Description                                                                                                                                                                                                                                                                                                                                                                   |  Required  |  Default Value  |
+|------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------:|
+|config.hot.reload.enabled| When set to true, dynamic reloading of the driver config file is enabled, all the properties values are reloaded when modified except this property's value itself, implying that the value of this property only takes effect at application startup. Alternatively, you can use an environment variable or JVM system property named `FLONA_DRIVER_CFG_HOT_RELOAD_ENABLED`. |No|false|
+|mask.columns| Specifies a comma-separated list of full column names whose values should be masked in result sets.                                                                                                                                                                                                                                                                           |No||
+|mask.FULL_COLUMN_NAME.mode| Specifies the masking mode to apply to the column matching the full column name.                                                                                                                                                                                                                                                                                              |No||
+|mask.FULL_COLUMN_NAME.number| Specifies the number of characters to mask counting from one end of the string, this property only applies to mask definitions where mode is set to `head` or `tail`.                                                                                                                                                                                                         |No||
+|mask.FULL_COLUMN_NAME.regex| Specifies the regex to apply when masking column values, this property only applies to mask definitions where mode is set to `regex` and is required for this mode.                                                                                                                                                                                                           |No||
+|mask.FULL_COLUMN_NAME.indices| Specifies the indices of the characters to mask in column values, this property only applies to mask definitions where mode is set to `indices` and is required for this mode.                                                                                                                                                                                                |No||
+|lazy.connections.enabled| (**ONLY supported by** [Remote Proxy](#remote-proxy)) When set to true, obtaining of a physical connection to the Flona server is deferred until the first call that requires a trip to the server is made.                                                                                                            |No|false|
 
 ## Connection Pooling Configuration
 Flona comes with built-in connection pooling support with 2 possible providers you can select from i.e. 
 [HikariCP](https://github.com/brettwooldridge/HikariCP) and [c3p0](https://www.mchange.com/projects/c3p0).
 
-The pooling behavior is configured in the [driver configuration](#driver-configuration) file, it is disabled 
+The pooling behavior is configured in the [Driver Configuration](#driver-configuration) file, it is disabled 
 by default. It can be enabled by setting the value of the property named `pooling.provider.name`, possible values are 
 `hikari` and `c3p0`. It is also automatically enabled when any provider pooling property is set globally, in this case 
 the pooling provider is inferred from any of the configured pooling properties themselves. For instance, if your driver 
 config contains a property named `pooling.c3p0.maxPoolSize`, then the c3p0 provider is auto selected. You **cannot** add 
 properties for both providers in the same config file otherwise it will be rejected.
 
-Because the server component for the remote proxy internally uses a file proxy, it implies pooling in the Flona 
-server is configured via its internal driver configuration file and database instance specific configurations are based 
-on the target database instances defined its embedded file proxy.
+Because the server component for the remote proxy internally uses an embedded file proxy, it implies pooling in the 
+Flona server is configured via its embedded driver configuration file and database instance specific configurations are 
+based on the target database instances defined its embedded file proxy.
 
 Pooling properties can be defined globally for all database instances and can also be overridden one by one for a 
 specific instance, use the formats below to achieve the desired behavior.
@@ -592,15 +592,15 @@ the full property name would be `pooling.c3p0.maxPoolSize`.
 - `pooling.DB_INSTANCE_NAME.PROPERTY_NAME` are properties applied to a data source of a single target database instance 
 where `DB_INSTANCE_NAME` is the database instance name and `PROPERTY_NAME` is the property name. For example, if you 
 want to set the maximum pool size for a database instance named `mysql-prod` and, you are using c3p0 as the provider, 
-the full property name would be `pooling.mysql-prod.maxPoolSize`. These values take precedence over 
-similar ones set globally for the provider. It implies that you can globally configure the pooling behavior for all the 
-database instances with `pooling.PROVIDER_NAME.PROPERTY_NAME` and then override any values for specific instances with 
+the full property name would be `pooling.mysql-prod.maxPoolSize`. These values take precedence over similar ones set 
+globally for the provider. It implies that you can globally configure the pooling behavior for all the database 
+instances with `pooling.PROVIDER_NAME.PROPERTY_NAME` and then override any values for specific instances with 
 `pooling.DB_INSTANCE_NAME.PROPERTY_NAME`.
 >[!WARNING]
 > Note that setting instance specific pooling properties only does not enable pooling, you would need to set 
 > `pooling.provider.name` or at least one property globally for the provider.
 # Unsupported JDBC Methods
-There is several methods from the JDBC specification that are not yet implemented or supported by Flona Driver, calling 
+There is several methods from the JDBC specification that are not yet implemented or supported by Flona driver, calling 
 them will result in a `java.sql.SQLFeatureNotSupportedException` getting thrown, but we're actively working on adding 
 support for these methods in future versions.
 # Technical Support

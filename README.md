@@ -33,8 +33,8 @@
 
 # Overview
 Flona is an abstraction of a database proxy that allows your application to loosely connect to target database instances 
-using unique logical names. In fact, you can have multiple applications connect to multiple database instances using a 
-single centralized configuration and setup.
+using unique logical names, it is independent of the target database system i.e. it can work with any relational 
+database product on the market that provides a JDBC driver.
 
 It also differs from other database proxies because it comes in 2 flavors i.e. it can be deployed with a server side 
 application that acts as a reverse proxy and the client application communicates with the remote server over a network. 

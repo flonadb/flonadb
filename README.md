@@ -349,7 +349,7 @@ of the common features like masking, pooling, dynamic reloading of configuration
 
 To use a file proxy, you need to do the following,
 - Create a database instance definition file that declares the database instance logical names and any necessary 
-information required to connection each of them i.e. the connection URL, username and password. Below is an example of 
+information required to connect to each of them i.e. the connection URL, username and password. Below is an example of 
 the contents of the instance definition file.
     ```properties
     db.instances=mysql-prod,postgresql-research

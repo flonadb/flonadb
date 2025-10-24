@@ -79,8 +79,8 @@ rarely rotate of those of the client applications which minimizes downtime.
 database instances. 
 - Dynamic reloading of database credentials and configuration properties at runtime.
 - An added layer of security, as of version 1.2.0, only client id and secret key based authentication is supported 
-between the client and proxy server, we intend to add a way to plug in custom authentication and authorization schemes 
-and to provide other features e.g. to retrieve client secrets and database passwords from a secret key manager.
+between the client and proxy server, we intend to add a way to plug in custom authentication and authorization schemes, 
+plus provide other features e.g. to retrieve client secrets and database passwords from a secret key manager.
 - Database system independence, it means in theory you can swap the target database system without changing client code 
 as long as the client applications are written in such a way that they are agnostic to the target database systems. And, 
 you can plug in features that cut across all the database systems like collecting metrics, a custom security model, 
@@ -100,7 +100,7 @@ application is a standard Spring Boot application with an embedded TCP/IP server
 the client driver and sends back the responses.
 
 It's worth noting that the server internally uses Flona again in a 'forward' proxy mode to process client requests 
-against a target database instance via an internal [File Proxy](#file-proxy).
+against a target database instance via an embedded [File Proxy](#file-proxy).
 
 > [!IMPORTANT]
 > It is strongly recommended that the communication between the client the server is done over a secured connection by 

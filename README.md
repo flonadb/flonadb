@@ -111,7 +111,7 @@ against a target database instance via an embedded [File Proxy](#file-proxy).
 - JDBC drivers for the target database systems.
 
 ### With Docker
-*Coming Soon....*
+The image and usage documentation can be found [here](https://hub.docker.com/r/flonadb/server).
 
 ### Manual
 
